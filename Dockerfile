@@ -19,11 +19,7 @@ COPY /console ./console
 COPY /app ./app
 COPY .env .env
 
-RUN ls -lah
-
 RUN go build -o main-app ./console/main.go
-
-RUN ls -lah
 
 # -----------------------
 # Setup Application Runner
@@ -39,7 +35,5 @@ COPY --from=builder /source/main-app .
 COPY --from=builder /source/.env .
 
 EXPOSE 8081
-
-RUN ls -lah
 
 CMD [ "./main-app" ]
