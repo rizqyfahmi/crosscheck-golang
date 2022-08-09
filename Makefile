@@ -1,4 +1,4 @@
-.PHONY: app-build app-start app-start-daemon app-stop app-drop compose-up compose-down
+.PHONY: app-build app-start app-start-daemon app-stop app-drop compose-up compose-down compose-clean
 
 app-build:
 	@-echo "Building image..."
@@ -31,9 +31,19 @@ compose-up:
 	@-echo "Building image..."
 	@docker-compose -p crosscheck build
 	@-echo "Running image..."
-	@docker-compose up -d
+	@docker-compose up
 
 compose-down:
+	@-echo "Stopping container..."
+	@docker-compose down
+	@make app-drop
+
+compose-clean:
+	@-echo "Removing volume..."
+	@rm -rf volume
+	@-echo "Recreating volume..."
+	@mkdir volume
+	@chmod -R 777 volume
 	@-echo "Stopping container..."
 	@docker-compose down
 	@make app-drop
