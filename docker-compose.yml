@@ -1,8 +1,20 @@
-version: '3.9'
+version: '3'
 services:
+  database:
+    container_name: app-database
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: crosscheck
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes: 
+      - ./volume:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
   app:
     container_name: app-container
     image: app-image:latest
+    restart: on-failure
     environment:
       - APP_ENV=local
     build:
@@ -12,13 +24,3 @@ services:
       - 8081:8081
     depends_on:
       - database
-
-  database:
-    container_name: app-database
-    image: postgres:11
-    environment:
-      POSTGRES_DB: crosscheck
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432

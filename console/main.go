@@ -2,6 +2,7 @@ package main
 
 import (
 	"crosscheck-golang/config"
+	"crosscheck-golang/config/database"
 	"log"
 	"net/http"
 
@@ -14,6 +15,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	database.NewPostgres(configuration)
 
 	app := echo.New()
 
