@@ -34,6 +34,4 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /source/main-app .
 COPY --from=builder /source/.env .
 
-EXPOSE 8081
-
 CMD [ "./main-app" ]

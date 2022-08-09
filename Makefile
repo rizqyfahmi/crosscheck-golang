@@ -1,4 +1,4 @@
-.PHONY: app-build app-start app-start-daemon app-stop app-drop
+.PHONY: app-build app-start app-start-daemon app-stop app-drop compose-up compose-down
 
 app-build:
 	@-echo "Building image..."
@@ -26,3 +26,14 @@ app-drop:
 	@-echo "Dropping image..."
 	@docker rmi app-image -f
 	@-echo "Image's dropped successfully!"
+
+compose-up:
+	@-echo "Building image..."
+	@docker-compose -p crosscheck build
+	@-echo "Running image..."
+	@docker-compose up -d
+
+compose-down:
+	@-echo "Stopping container..."
+	@docker-compose down
+	@make app-drop
