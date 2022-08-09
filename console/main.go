@@ -18,6 +18,7 @@ func main() {
 
 	appPort := os.Getenv("APP_PORT")
 	appUrl := os.Getenv("APP_URL")
+	appEnv := os.Getenv("APP_ENV") // load from "APP_ENV=local go run ./console/main.go"
 
 	app := echo.New()
 
@@ -25,7 +26,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello World")
 	})
 
-	log.Printf("Open here: %s \n", appUrl)
+	log.Printf("Open here: %s (%s)\n", appUrl, appEnv)
 
 	if err = app.Start(":" + appPort); err != nil {
 		log.Fatal("Something went wrong...")

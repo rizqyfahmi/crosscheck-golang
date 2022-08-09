@@ -3,6 +3,8 @@ services:
   app:
     container_name: app-container
     image: app-image:latest
+    environment:
+      - APP_ENV=local
     build:
       context: .
       dockerfile: Dockerfile
