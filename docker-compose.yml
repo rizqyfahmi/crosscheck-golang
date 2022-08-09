@@ -15,9 +15,9 @@ services:
 
   database:
     container_name: app-database
-    image: postgres:11-alpine
+    image: postgres:11
     environment:
-      POSTGRES_DB: auth
+      POSTGRES_DB: crosscheck
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
