@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -48,26 +49,38 @@ type RefreshTokenCookieConfig struct {
 	Expires  time.Duration
 }
 
-func NewConfig(filename ...string) (*Config, error) {
+func New(filename ...string) *Config {
 	if err := godotenv.Load(filename...); err != nil {
-		return nil, err
+		log.Println("Failed to load .env file")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	dbConfig := GetDBConfig()
 
 	serverConfig, err := GetServerConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load server config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	tokenCookieConfig, err := GetTokenCookieConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load token cookie config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	refreshTokenCookieConfig, err := GetRefreshTokenCookieConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load refresh token cookie config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	return &Config{
@@ -75,7 +88,7 @@ func NewConfig(filename ...string) (*Config, error) {
 		*dbConfig,
 		*tokenCookieConfig,
 		*refreshTokenCookieConfig,
-	}, nil
+	}
 }
 
 func GetServerConfig() (*ServerConfig, error) {

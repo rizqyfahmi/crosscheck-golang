@@ -16,6 +16,7 @@ RUN go mod verify
 
 COPY /config ./config
 COPY /console ./console
+COPY /routes ./routes
 COPY /app ./app
 COPY .env .env
 
