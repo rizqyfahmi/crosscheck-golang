@@ -6,6 +6,8 @@ main() {
   # Check Programming Runtimes
   check_cmd "go"
   check_cmd "migrate" "golang-migrate"
+  check_cmd "make"
+  check_cmd "git"
   check_optional_cmd "brew"
   check_optional_cmd "docker"
 
