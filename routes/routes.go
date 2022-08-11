@@ -1,21 +1,25 @@
 package routes
 
 import (
+	AuthRepository "crosscheck-golang/app/features/authentication/data/repository"
+	AuthLocalDataSource "crosscheck-golang/app/features/authentication/data/source"
+	AuthUsecase "crosscheck-golang/app/features/authentication/domain/usecase"
+	AuthController "crosscheck-golang/app/features/authentication/presentation/controller"
 	"crosscheck-golang/config"
-	"database/sql"
 	"log"
 	"net/http"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
 
 type Route struct {
-	App    *echo.Echo
-	Db     *sql.DB
-	Config *config.Config
+	app    *echo.Echo
+	db     *gorm.DB
+	config *config.Config
 }
 
-func New(app *echo.Echo, db *sql.DB, config *config.Config) *Route {
+func New(app *echo.Echo, db *gorm.DB, config *config.Config) *Route {
 	return &Route{
 		app,
 		db,
@@ -28,14 +32,14 @@ func (r *Route) Run() {
 	r.getGeneralRoute()
 	r.getAuthRoute()
 
-	if err := r.App.Start(":" + r.Config.Server.Port); err != nil {
+	if err := r.app.Start(":" + r.config.Server.Port); err != nil {
 		log.Fatal("Something went wrong...")
 	}
 }
 
 // Get general route privately
 func (r *Route) getGeneralRoute() {
-	router := r.App
+	router := r.app
 	router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	})
@@ -43,9 +47,17 @@ func (r *Route) getGeneralRoute() {
 
 // Get auth route privately
 func (r *Route) getAuthRoute() {
-	router := r.App.Group("/auth")
+	localSource := AuthLocalDataSource.New(r.db)
+	repository := AuthRepository.New(localSource)
+	usecase := AuthUsecase.New(repository, *r.config)
+	c := AuthController.New(usecase)
+
+	router := r.app.Group("/auth")
 
 	router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello Auth")
 	})
+
+	router.POST("/registration", c.Registration)
+
 }
