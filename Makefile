@@ -27,29 +27,28 @@ app-drop:
 	@docker rmi app-image -f
 	@-echo "Image's dropped successfully!"
 
+# make compose-up
+# make compose-up mode="daemon"
 compose-up:
-	@-echo "Building image..."
-	@docker-compose -p crosscheck build
-	@-echo "Running image..."
-	@docker-compose up
+	@chmod -R 777 script
+	@./script/compose-up.sh $(mode)
 
-compose-up-daemon:
-	@-echo "Building image..."
-	@docker-compose -p crosscheck build
-	@-echo "Running image..."
-	@docker-compose up -d
-
+# make compose-down
+# make compose-down mode="clean"
 compose-down:
-	@-echo "Stopping container..."
-	@docker-compose down
-	@make app-drop
+	@chmod -R 777 script
+	@./script/compose-down.sh $(mode)
 
-compose-clean:
-	@-echo "Removing volume..."
-	@rm -rf volume
-	@-echo "Recreating volume..."
-	@mkdir volume
-	@chmod -R 777 volume
-	@-echo "Stopping container..."
-	@docker-compose down
-	@make app-drop
+# make migrate-up
+# make migrate-up version=1
+migrate-up:
+	@-echo "Migrating up..."
+	@migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/crosscheck?sslmode=disable" -verbose up $(version)
+	@-echo "Migrating up is success!"
+
+# make migrate-down
+# make migrate-down version=1
+migrate-down:
+	@-echo "Migrating down..."
+	@migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/crosscheck?sslmode=disable" -verbose down $(version)
+	@-echo "Migrating down is success!"
