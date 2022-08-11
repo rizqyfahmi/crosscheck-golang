@@ -3,29 +3,18 @@ package main
 import (
 	"crosscheck-golang/config"
 	"crosscheck-golang/config/database"
-	"log"
-	"net/http"
+	"crosscheck-golang/routes"
 
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	configuration, err := config.NewConfig()
+	configuration := config.New()
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	database.NewPostgres(configuration)
+	db := database.NewPostgres(configuration)
 
 	app := echo.New()
 
-	app.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello World")
-	})
-
-	if err = app.Start(":" + configuration.Server.Port); err != nil {
-		log.Fatal("Something went wrong...")
-	}
+	routes.New(app, db, configuration).Run()
 
 }

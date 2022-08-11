@@ -33,6 +33,12 @@ compose-up:
 	@-echo "Running image..."
 	@docker-compose up
 
+compose-up-daemon:
+	@-echo "Building image..."
+	@docker-compose -p crosscheck build
+	@-echo "Running image..."
+	@docker-compose up -d
+
 compose-down:
 	@-echo "Stopping container..."
 	@docker-compose down

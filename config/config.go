@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -11,7 +12,7 @@ import (
 type Config struct {
 	Server       ServerConfig
 	DbConfig     DBConfig
-	Token        TokenCookieConfig
+	AccessToken  AccessTokenCookieConfig
 	RefreshToken RefreshTokenCookieConfig
 }
 
@@ -19,7 +20,6 @@ type ServerConfig struct {
 	AppVersion   string
 	Port         string
 	Env          string
-	JwtSecret    string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 }
@@ -32,9 +32,10 @@ type DBConfig struct {
 	Password string
 }
 
-type TokenCookieConfig struct {
+type AccessTokenCookieConfig struct {
 	Name     string
 	Path     string
+	Secret   string
 	Secure   bool
 	HttpOnly bool
 	Expires  time.Duration
@@ -43,31 +44,44 @@ type TokenCookieConfig struct {
 type RefreshTokenCookieConfig struct {
 	Name     string
 	Path     string
+	Secret   string
 	Secure   bool
 	HttpOnly bool
 	Expires  time.Duration
 }
 
-func NewConfig(filename ...string) (*Config, error) {
+func New(filename ...string) *Config {
 	if err := godotenv.Load(filename...); err != nil {
-		return nil, err
+		log.Println("Failed to load .env file")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	dbConfig := GetDBConfig()
 
 	serverConfig, err := GetServerConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load server config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	tokenCookieConfig, err := GetTokenCookieConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load token cookie config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	refreshTokenCookieConfig, err := GetRefreshTokenCookieConfig()
 	if err != nil {
-		return nil, err
+		log.Println("Failed to load refresh token cookie config")
+		log.Fatal(err)
+
+		return nil
 	}
 
 	return &Config{
@@ -75,7 +89,7 @@ func NewConfig(filename ...string) (*Config, error) {
 		*dbConfig,
 		*tokenCookieConfig,
 		*refreshTokenCookieConfig,
-	}, nil
+	}
 }
 
 func GetServerConfig() (*ServerConfig, error) {
@@ -93,7 +107,6 @@ func GetServerConfig() (*ServerConfig, error) {
 		AppVersion:   os.Getenv("APP_VERSION"),
 		Port:         os.Getenv("APP_PORT"),
 		Env:          os.Getenv("APP_ENV"), // Replacable with "APP_ENV=local go run ./console/main.go"
-		JwtSecret:    os.Getenv("JWT_SECRET_KEY"),
 		ReadTimeout:  time.Duration(readTimeout) * time.Millisecond,
 		WriteTimeout: time.Duration(writeTimeout) * time.Millisecond,
 	}, nil
@@ -110,25 +123,26 @@ func GetDBConfig() *DBConfig {
 	}
 }
 
-func GetTokenCookieConfig() (*TokenCookieConfig, error) {
-	secure, err := strconv.ParseBool(os.Getenv("JWT_TOKEN_SECURE"))
+func GetTokenCookieConfig() (*AccessTokenCookieConfig, error) {
+	secure, err := strconv.ParseBool(os.Getenv("JWT_ACCESS_TOKEN_SECURE"))
 	if err != nil {
 		return nil, err
 	}
 
-	httpOnly, err := strconv.ParseBool(os.Getenv("JWT_TOKEN_HTTPONLY"))
+	httpOnly, err := strconv.ParseBool(os.Getenv("JWT_ACCESS_TOKEN_HTTPONLY"))
 	if err != nil {
 		return nil, err
 	}
 
-	expires, err := strconv.Atoi(os.Getenv("JWT_TOKEN_EXPIRES"))
+	expires, err := strconv.Atoi(os.Getenv("JWT_ACCESS_TOKEN_EXPIRES"))
 	if err != nil {
 		return nil, err
 	}
 
-	return &TokenCookieConfig{
-		Name:     os.Getenv("JWT_TOKEN_NAME"),
-		Path:     os.Getenv("JWT_TOKEN_PATH"),
+	return &AccessTokenCookieConfig{
+		Name:     os.Getenv("JWT_ACCESS_TOKEN_NAME"),
+		Path:     os.Getenv("JWT_ACCESS_TOKEN_PATH"),
+		Secret:   os.Getenv("JWT_ACCESS_TOKEN_SECRET"),
 		Secure:   secure,
 		HttpOnly: httpOnly,
 		Expires:  time.Duration(expires) * time.Millisecond,
@@ -154,6 +168,7 @@ func GetRefreshTokenCookieConfig() (*RefreshTokenCookieConfig, error) {
 	return &RefreshTokenCookieConfig{
 		Name:     os.Getenv("JWT_REFRESH_TOKEN_NAME"),
 		Path:     os.Getenv("JWT_REFRESH_TOKEN_PATH"),
+		Secret:   os.Getenv("JWT_REFRESH_TOKEN_SECRET"),
 		Secure:   secure,
 		HttpOnly: httpOnly,
 		Expires:  time.Duration(expires) * time.Millisecond,
