@@ -52,3 +52,9 @@ migrate-down:
 	@-echo "Migrating down..."
 	@migrate -path migrations -database "postgresql://postgres:postgres@localhost:5432/crosscheck?sslmode=disable" -verbose down $(version)
 	@-echo "Migrating down is success!"
+
+# make migrate-create name="create_table_profile"
+migrate-create:
+	@-echo "Creating migration file..."
+	@migrate create -ext sql -dir migrations $(name)
+	@-echo "Migration file successfully created..."
