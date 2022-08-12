@@ -25,12 +25,8 @@ func New(secretKey string, expiresAt time.Duration) *JwtUtil {
 }
 
 func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
-	if j.SecretKey == "" {
-		return nil, fmt.Errorf("SecretKey is required")
-	}
-
-	if j.ExpiresAt == 0 {
-		return nil, fmt.Errorf("ExpiresAt must be greater than 0")
+	if err := j.validateStructProperty(); err != nil {
+		return nil, err
 	}
 
 	if userID == "" {
@@ -61,12 +57,8 @@ func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
 
 func (j *JwtUtil) ValidateToken(token string) (*jwt.Token, error) {
 
-	if j.SecretKey == "" {
-		return nil, fmt.Errorf("SecretKey is required")
-	}
-
-	if j.ExpiresAt == 0 {
-		return nil, fmt.Errorf("ExpiresAt must be greater than 0")
+	if err := j.validateStructProperty(); err != nil {
+		return nil, err
 	}
 
 	if token == "" {
@@ -79,4 +71,17 @@ func (j *JwtUtil) ValidateToken(token string) (*jwt.Token, error) {
 		}
 		return []byte(j.SecretKey), nil
 	})
+}
+
+// Validate property of JwtUtil struct privately
+func (j *JwtUtil) validateStructProperty() error {
+	if j.SecretKey == "" {
+		return fmt.Errorf("SecretKey is required")
+	}
+
+	if j.ExpiresAt == 0 {
+		return fmt.Errorf("ExpiresAt must be greater than 0")
+	}
+
+	return nil
 }
