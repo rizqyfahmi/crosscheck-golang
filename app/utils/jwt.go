@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -24,9 +25,58 @@ func New(secretKey string, expiresAt time.Duration) *JwtUtil {
 }
 
 func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
-	return nil, nil
+	if j.SecretKey == "" {
+		return nil, fmt.Errorf("SecretKey is required")
+	}
+
+	if j.ExpiresAt == 0 {
+		return nil, fmt.Errorf("ExpiresAt must be greater than 0")
+	}
+
+	if userID == "" {
+		return nil, fmt.Errorf("UserID is required")
+	}
+
+	claims := &JwtClaims{
+		userID,
+		jwt.RegisteredClaims{
+			ExpiresAt: &jwt.NumericDate{
+				Time: time.Now().Add(j.ExpiresAt),
+			},
+			IssuedAt: &jwt.NumericDate{
+				Time: time.Now(),
+			},
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	result, err := token.SignedString([]byte(j.SecretKey))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 func (j *JwtUtil) ValidateToken(token string) (*jwt.Token, error) {
-	return nil, nil
+
+	if j.SecretKey == "" {
+		return nil, fmt.Errorf("SecretKey is required")
+	}
+
+	if j.ExpiresAt == 0 {
+		return nil, fmt.Errorf("ExpiresAt must be greater than 0")
+	}
+
+	if token == "" {
+		return nil, fmt.Errorf("token is required")
+	}
+
+	return jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method %v", t.Header["alg"])
+		}
+		return []byte(j.SecretKey), nil
+	})
 }
