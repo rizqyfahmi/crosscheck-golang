@@ -58,3 +58,15 @@ migrate-create:
 	@-echo "Creating migration file..."
 	@migrate create -ext sql -dir migrations $(name)
 	@-echo "Migration file successfully created..."
+
+# make test-bootstrap path="tests"
+test-bootstrap:
+	@-echo "Creating test suite file..."
+	@cd $(path) && ginkgo bootstrap
+	@-echo "Test suite file created successfully..."
+
+# make test-generate path="tests" name="utils"
+test-generate:
+	@-echo "Creating test suite file..."
+	@cd $(path) && ginkgo generate $(name)
+	@-echo "Test suite file created successfully..."
