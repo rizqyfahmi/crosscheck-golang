@@ -70,3 +70,9 @@ test-generate:
 	@-echo "Creating test suite file..."
 	@cd $(path) && ginkgo generate $(name)
 	@-echo "Test suite file created successfully..."
+
+# make check
+check:
+	@-echo "Checking environment..."
+	@sh ./script/doctor.sh
+	@-echo "Environment checked successfully..."
