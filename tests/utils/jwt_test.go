@@ -1,97 +1,134 @@
-package utils
+package utils_test
 
 import (
-	"crosscheck-golang/app/utils"
-	"testing"
+	"log"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"crosscheck-golang/app/utils"
 )
 
-func TestGenerateTokenEmptySecretKey(t *testing.T) {
-	jwt := utils.New("", 10*time.Minute)
-	result, err := jwt.GenerateToken("UserID")
+var _ = Describe("Generate Token", func() {
+	Context("When SecretKey parameter on initial is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("", 10*time.Minute)
+			result, err := jwt.GenerateToken("UserID")
 
-	assert.Nil(t, result)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "SecretKey is required")
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("SecretKey is required"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-func TestGenerateTokenEmptyExpiresAt(t *testing.T) {
-	jwt := utils.New("SecretKey", 0)
-	result, err := jwt.GenerateToken("UserID")
+	Context("When ExpiresAt parameter on initial is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 0)
+			result, err := jwt.GenerateToken("UserID")
 
-	assert.Nil(t, result)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "ExpiresAt must be greater than 0")
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("ExpiresAt must be greater than 0"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-func TestGenerateTokenEmptyParameter(t *testing.T) {
-	jwt := utils.New("SecretKey", 10*time.Minute)
-	result, err := jwt.GenerateToken("")
+	Context("When UserID parameter on GenerateToken is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 10*time.Minute)
+			result, err := jwt.GenerateToken("")
 
-	assert.Nil(t, result)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "UserID is required")
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("UserID is required"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-func TestGenerateTokenSuccess(t *testing.T) {
-	jwt := utils.New("SecretKey", 10*time.Minute)
-	result, err := jwt.GenerateToken("UserID")
+	Context("When all required parameters is not empty", func() {
+		It("returns success", func() {
+			jwt := utils.New("SecretKey", 10*time.Minute)
+			result, err := jwt.GenerateToken("UserID")
 
-	assert.NotNil(t, result)
-	assert.Nil(t, err)
-}
+			Expect(err).Should(Succeed())
+			Expect(result).ShouldNot(BeNil())
+		})
+	})
+})
 
-func TestValidateTokenEmptySecretKey(t *testing.T) {
-	jwt := utils.New("", 30*time.Minute)
+var _ = Describe("Validate Token", func() {
+	Context("When SecretKey parameter on initial is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("", 10*time.Minute)
+			result, err := jwt.ValidateToken("Token")
 
-	token, err := jwt.ValidateToken("Token")
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("SecretKey is required"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-	assert.Nil(t, token)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "SecretKey is required")
-}
+	Context("When ExpiresAt parameter on initial is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 0)
+			result, err := jwt.ValidateToken("Token")
 
-func TestValidateTokenEmptyExpiresAt(t *testing.T) {
-	jwt := utils.New("SecretKey", 0*time.Minute)
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("ExpiresAt must be greater than 0"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-	token, err := jwt.ValidateToken("Token")
+	Context("When token parameter on ValidateToken is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 10*time.Minute)
+			result, err := jwt.ValidateToken("")
 
-	assert.Nil(t, token)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "ExpiresAt must be greater than 0")
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("token is required"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-func TestValidateTokenEmptyParameter(t *testing.T) {
-	jwt := utils.New("SecretKey", 30*time.Minute)
+	Context("When token parameter on ValidateToken is empty", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 10*time.Minute)
+			result, err := jwt.ValidateToken("")
 
-	token, err := jwt.ValidateToken("")
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("token is required"))
+			Expect(result).Should(BeNil())
+		})
+	})
 
-	assert.Nil(t, token)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "token is required")
-}
+	Context("When value of token parameter is invalid", func() {
+		It("returns failed", func() {
+			jwt := utils.New("SecretKey", 10*time.Minute)
+			result, err := jwt.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
 
-func TestValidateTokenInvalid(t *testing.T) {
-	jwt := utils.New("SecretKey", 30*time.Minute)
+			log.Println(result)
+			Expect(err).Should(HaveOccurred())
+			Expect(result).ShouldNot(BeNil())
+		})
+	})
 
-	token, err := jwt.ValidateToken("Token")
+	Context("When all required parameters is not empty", func() {
+		var token string
+		var jwt *utils.JwtUtil
 
-	assert.Nil(t, token)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "token contains an invalid number of segments")
-}
+		BeforeEach(func() {
+			jwt = utils.New("SecretKey", 30*time.Minute)
+			tempToken, err := jwt.GenerateToken("UserID")
 
-func TestValidateTokenSuccess(t *testing.T) {
-	jwt := utils.New("SecretKey", 30*time.Minute)
-	tokenString, err := jwt.GenerateToken("UserID")
-	if err != nil {
-		t.Fatal(err)
-	}
+			token = *tempToken
 
-	token, err := jwt.ValidateToken(*tokenString)
+			Expect(err).Should(Succeed())
+		})
 
-	assert.NotNil(t, token)
-	assert.Nil(t, err)
-}
+		It("returns success", func() {
+			result, err := jwt.ValidateToken(token)
+
+			Expect(err).Should(Succeed())
+			Expect(result).ShouldNot(BeNil())
+		})
+	})
+})

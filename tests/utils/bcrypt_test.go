@@ -1,41 +1,72 @@
-package utils
+package utils_test
 
 import (
-	"crosscheck-golang/app/utils"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
+
+	"crosscheck-golang/app/utils"
 )
 
-func TestBcryptHashPasswordFailure(t *testing.T) {
-	hashPassword := utils.HashPassword("HelloPassword")
+var _ = Describe("Hash password", func() {
+	Context("When the result is compared with different password", func() {
+		It("returns failure", func() {
+			hashPassword := utils.HashPassword("HelloPassword")
+			err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte("OllaPassword"))
 
-	assert.NotNil(t, bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte("OllaPassword")))
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("crypto/bcrypt: hashedPassword is not the hash of the given password"))
+		})
+	})
 
-func TestBcryptHashPasswordSuccess(t *testing.T) {
-	hashPassword := utils.HashPassword("HelloPassword")
+	Context("When the result is compared with similar password", func() {
+		It("returns success", func() {
+			hashPassword := utils.HashPassword("HelloPassword")
+			err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte("HelloPassword"))
 
-	assert.Nil(t, bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte("HelloPassword")))
-}
+			Expect(err).Should(Succeed())
+		})
+	})
 
-func TestBcryptComparePasswordFailure(t *testing.T) {
-	pw := []byte("HelloPassword")
-	result, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)
-	if err != nil {
-		t.Fatal(err)
-	}
+	Context("When the password parameter is already encrypted", func() {
+		It("returns failure", func() {
+			hashPassword := utils.HashPassword("$2a$12$kSmt/kAF0Yf0egtWzvWQR.XOcpy0QkG7qe5BWKfCua.nUw3fqguSS")
+			err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte("OllaPassword"))
 
-	assert.NotNil(t, utils.ComparePassword(string(result), "OllaPassword"))
-}
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("crypto/bcrypt: hashedPassword is not the hash of the given password"))
+		})
+	})
 
-func TestBcryptComparePasswordSuccess(t *testing.T) {
-	pw := []byte("HelloPassword")
-	result, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)
-	if err != nil {
-		t.Fatal(err)
-	}
+})
 
-	assert.Nil(t, utils.ComparePassword(string(result), "HelloPassword"))
-}
+var _ = Describe("Compare password", func() {
+	var result []byte
+
+	BeforeEach(func() {
+		pw := []byte("HelloPassword")
+		tempResult, err := bcrypt.GenerateFromPassword(pw, bcrypt.DefaultCost)
+
+		result = tempResult
+
+		Expect(err).Should(Succeed())
+	})
+
+	Context("When the password parameters are not equal", func() {
+		It("returns failure", func() {
+			err := utils.ComparePassword(string(result), "OllaPassword")
+
+			Expect(err).Should(HaveOccurred())
+			Expect(err).Should(MatchError("crypto/bcrypt: hashedPassword is not the hash of the given password"))
+		})
+	})
+
+	Context("When the password parameters are equal", func() {
+		It("returns success", func() {
+			err := utils.ComparePassword(string(result), "HelloPassword")
+
+			Expect(err).Should(Succeed())
+		})
+	})
+
+})
