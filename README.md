@@ -7,21 +7,66 @@ This aim of this project was creating a REST API that is implementing Clean Arch
 1. Go 1.17
 2. PostgreSQL 11
 3. Git
-4. Make
-5. Docker
+4. Brew
+5. Make
+6. Docker
+7. Golang-migrate
+8. Ginkgo
+
 
 ## Get Started
 
 ```sh
-# Build and run the application
+# Check the prerequisites
+make check
+
+# Run the application and database container/image
 make compose-up
 
-# Stop and drop/remove the application
+# Build and run the application and database container/image in daemon mode
+make compose-up mode="daemon"
+
+# Stop the application and database container/image
 make compose-down
+
+# Stop and drop the application and database container/image
+make compose-down mode="clean"
+```
+
+## Migration Commands
+
+```sh
+# Create a migration file
+make migrate-create name="create_table"
+
+# Apply all migrations
+make migrate-up
+
+# Apply some of migration files up to specific version
+make migrate-up version=1
+
+# Reverse all migrations
+make migrate-down version=1
+
+# Reverse some of migration files down to specific version
+make migrate-down version=1
+```
+
+## Testing Commands
+
+Make sure that you already have test suite on the same path you generate test file
+
+```sh
+# create a test suite into specific path
+make test-bootstrap path="tests"
+
+# create a test file into specific path
+make test-generate path="tests" name="utils"
 ```
 
 ## More Commands
 
+All commands below is used for managing application container independently (exclude database)
 ```sh
 # Build the image of the application
 make app-build

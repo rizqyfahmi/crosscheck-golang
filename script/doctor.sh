@@ -6,6 +6,7 @@ main() {
   # Check Programming Runtimes
   check_cmd "go"
   check_cmd "migrate" "golang-migrate"
+  check_cmd "ginkgo"
   check_cmd "make"
   check_cmd "git"
   check_optional_cmd "brew"
@@ -14,11 +15,11 @@ main() {
   echo
 
   if [[ ${ERR_COUNT} -gt 0 ]]; then
-    echo "Error Count: ${ERR_COUNT}"
+    echo "Result: error count: ${ERR_COUNT}"
     exit 1
   fi
 
-  echo "OK"
+  echo "Result: all requirement is ready"
 }
 
 check_cmd() {
