@@ -1,4 +1,4 @@
-.PHONY: app-build app-start app-start-daemon app-stop app-drop compose-up compose-down compose-clean
+.PHONY: app-build app-start app-start-daemon app-stop app-drop
 
 app-build:
 	@-echo "Building image..."
@@ -27,6 +27,7 @@ app-drop:
 	@docker rmi app-image -f
 	@-echo "Image's dropped successfully!"
 
+.PHONY: compose-up compose-down
 # make compose-up
 # make compose-up mode="daemon"
 compose-up:
@@ -39,6 +40,7 @@ compose-down:
 	@chmod -R 777 script
 	@./script/compose-down.sh $(mode)
 
+.PHONY: migrate-up migrate-down migrate-create
 # make migrate-up
 # make migrate-up version=1
 migrate-up:
@@ -59,6 +61,7 @@ migrate-create:
 	@migrate create -ext sql -dir migrations $(name)
 	@-echo "Migration file successfully created..."
 
+.PHONY: test-bootstrap test-generate test-generate-mock test-run
 # make test-bootstrap path="tests"
 test-bootstrap:
 	@-echo "Creating test suite file..."
@@ -71,6 +74,19 @@ test-generate:
 	@cd $(path) && ginkgo generate $(name)
 	@-echo "Test suite file created successfully..."
 
+# make test-generate-mock source="path/file.go" destination="path/file_mock.go" package="some_package"
+test-generate-mock:
+	@-echo "Generating mock file..."
+	@mockgen -source=$(source) -destination=$(destination) -package=$(package)
+	@-echo "Mock file successfully generated..."
+
+# make test-run
+test-run:
+	@-echo "Running all test suites..."
+	@ginkgo test ./...
+	@-echo "All test suites successfully runned..."
+
+.PHONY: check
 # make check
 check:
 	@-echo "Checking environment..."

@@ -9,6 +9,7 @@ main() {
   check_cmd "ginkgo"
   check_cmd "make"
   check_cmd "git"
+  check_cmd "mockgen"
   check_optional_cmd "brew"
   check_optional_cmd "docker"
 

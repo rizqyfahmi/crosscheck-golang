@@ -1,4 +1,4 @@
-package utils
+package usecase
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestUtils(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Utils Suite")
+	RunSpecs(t, "Auth Usecase Suite")
 }

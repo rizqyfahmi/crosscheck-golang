@@ -1,4 +1,4 @@
-package utils
+package jwt
 
 import (
 	"fmt"
@@ -12,19 +12,24 @@ type JwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-type JwtUtil struct {
-	SecretKey string
-	ExpiresAt time.Duration
+type JwtUtil interface {
+	GenerateToken(userID string) (*string, error)
+	ValidateToken(token string) (*jwt.Token, error)
 }
 
-func New(secretKey string, expiresAt time.Duration) *JwtUtil {
-	return &JwtUtil{
+type JwtUtilImpl struct {
+	secretKey string
+	expiresAt time.Duration
+}
+
+func New(secretKey string, expiresAt time.Duration) JwtUtil {
+	return &JwtUtilImpl{
 		secretKey,
 		expiresAt,
 	}
 }
 
-func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
+func (j *JwtUtilImpl) GenerateToken(userID string) (*string, error) {
 	if err := j.validateStructProperty(); err != nil {
 		return nil, err
 	}
@@ -34,10 +39,10 @@ func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
 	}
 
 	claims := &JwtClaims{
-		userID,
-		jwt.RegisteredClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{
-				Time: time.Now().Add(j.ExpiresAt),
+				Time: time.Now().Add(j.expiresAt),
 			},
 			IssuedAt: &jwt.NumericDate{
 				Time: time.Now(),
@@ -46,7 +51,7 @@ func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	result, err := token.SignedString([]byte(j.SecretKey))
+	result, err := token.SignedString([]byte(j.secretKey))
 
 	if err != nil {
 		return nil, err
@@ -55,7 +60,7 @@ func (j *JwtUtil) GenerateToken(userID string) (*string, error) {
 	return &result, nil
 }
 
-func (j *JwtUtil) ValidateToken(token string) (*jwt.Token, error) {
+func (j *JwtUtilImpl) ValidateToken(token string) (*jwt.Token, error) {
 
 	if err := j.validateStructProperty(); err != nil {
 		return nil, err
@@ -69,17 +74,17 @@ func (j *JwtUtil) ValidateToken(token string) (*jwt.Token, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method %v", t.Header["alg"])
 		}
-		return []byte(j.SecretKey), nil
+		return []byte(j.secretKey), nil
 	})
 }
 
-// Validate property of JwtUtil struct privately
-func (j *JwtUtil) validateStructProperty() error {
-	if j.SecretKey == "" {
+// Validate property of JwtUtilImpl struct privately
+func (j *JwtUtilImpl) validateStructProperty() error {
+	if j.secretKey == "" {
 		return fmt.Errorf("SecretKey is required")
 	}
 
-	if j.ExpiresAt == 0 {
+	if j.expiresAt == 0 {
 		return fmt.Errorf("ExpiresAt must be greater than 0")
 	}
 
