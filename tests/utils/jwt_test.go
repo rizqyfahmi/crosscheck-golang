@@ -6,14 +6,14 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"crosscheck-golang/app/utils"
+	JwtUtil "crosscheck-golang/app/utils/jwt"
 )
 
 var _ = Describe("JWT", func() {
 	Describe("Generate Token", func() {
 		Context("When SecretKey parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("", 10*time.Minute)
+				jwt := JwtUtil.New("", 10*time.Minute)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(HaveOccurred())
@@ -24,7 +24,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When ExpiresAt parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 0)
+				jwt := JwtUtil.New("SecretKey", 0)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(HaveOccurred())
@@ -35,7 +35,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When UserID parameter on GenerateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 10*time.Minute)
+				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
 				result, err := jwt.GenerateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -46,7 +46,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When all required parameters is not empty", func() {
 			It("returns success", func() {
-				jwt := utils.New("SecretKey", 10*time.Minute)
+				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(Succeed())
@@ -58,7 +58,7 @@ var _ = Describe("JWT", func() {
 	Describe("Validate Token", func() {
 		Context("When SecretKey parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("", 10*time.Minute)
+				jwt := JwtUtil.New("", 10*time.Minute)
 				result, err := jwt.ValidateToken("Token")
 
 				Expect(err).Should(HaveOccurred())
@@ -69,7 +69,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When ExpiresAt parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 0)
+				jwt := JwtUtil.New("SecretKey", 0)
 				result, err := jwt.ValidateToken("Token")
 
 				Expect(err).Should(HaveOccurred())
@@ -80,7 +80,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When token parameter on ValidateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 10*time.Minute)
+				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
 				result, err := jwt.ValidateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -91,7 +91,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When token parameter on ValidateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 10*time.Minute)
+				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
 				result, err := jwt.ValidateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -102,7 +102,7 @@ var _ = Describe("JWT", func() {
 
 		Context("When value of token parameter is invalid", func() {
 			It("returns failed", func() {
-				jwt := utils.New("SecretKey", 10*time.Minute)
+				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
 				result, err := jwt.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
 
 				Expect(err).Should(HaveOccurred())
@@ -112,10 +112,10 @@ var _ = Describe("JWT", func() {
 
 		Context("When all required parameters is not empty", func() {
 			var token string
-			var jwt *utils.JwtUtil
+			var jwt JwtUtil.JwtUtil
 
 			BeforeEach(func() {
-				jwt = utils.New("SecretKey", 30*time.Minute)
+				jwt = JwtUtil.New("SecretKey", 30*time.Minute)
 				tempToken, err := jwt.GenerateToken("UserID")
 
 				token = *tempToken
