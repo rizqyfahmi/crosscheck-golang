@@ -12,6 +12,7 @@ This aim of this project was creating a REST API that is implementing Clean Arch
 6. Docker
 7. Golang-migrate
 8. Ginkgo
+9. Mockgen
 
 
 ## Get Started
@@ -62,6 +63,12 @@ make test-bootstrap path="tests"
 
 # create a test file into specific path
 make test-generate path="tests" name="utils"
+
+# create a mock file
+make test-generate-mock source="path/file.go" destination="path/file_mock.go" package="some_package"
+
+# running all test suites
+make test-run
 ```
 
 ## More Commands
