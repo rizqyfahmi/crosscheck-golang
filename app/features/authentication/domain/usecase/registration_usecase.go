@@ -23,5 +23,31 @@ func New(authRepository repository.AuthRepository, accessTokenUtil jwtUtil.JwtUt
 }
 
 func (usecase *RegistrationUsecase) Call(param param.RegistrationParam) (*entity.AuthEntity, *exception.Exception) {
-	return nil, nil
+	user, errException := usecase.authRepository.Registration(param)
+	if errException != nil {
+		return nil, errException
+	}
+
+	accessToken, err := usecase.accessTokenUtil.GenerateToken(user.Id)
+
+	if err != nil {
+		return nil, &exception.Exception{
+			Message: exception.ErrorAccessToken,
+			Causes:  err.Error(),
+		}
+	}
+
+	refeshToken, err := usecase.refreshTokenUtil.GenerateToken(user.Id)
+
+	if err != nil {
+		return nil, &exception.Exception{
+			Message: exception.ErrorRefreshToken,
+			Causes:  err.Error(),
+		}
+	}
+
+	return &entity.AuthEntity{
+		AccessToken:  *accessToken,
+		RefreshToken: *refeshToken,
+	}, nil
 }
