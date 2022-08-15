@@ -2,6 +2,8 @@ package hash
 
 import (
 	BcryptHelper "crosscheck-golang/app/utils/bcrypt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Hash interface {
@@ -20,9 +22,19 @@ func New(hash BcryptHelper.Bcrypt) Hash {
 }
 
 func (h *HashImpl) HashPassword(password string) (*string, error) {
-	return nil, nil
+	pw := []byte(password)
+	encrypted, err := h.hash.GenerateFromPassword(pw, bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	result := string(encrypted)
+	return &result, nil
 }
 
 func (h *HashImpl) ComparePassword(hashPassword string, password string) error {
-	return nil
+	pw := []byte(password)
+	hw := []byte(hashPassword)
+	err := h.hash.CompareHashAndPassword(hw, pw)
+	return err
 }
