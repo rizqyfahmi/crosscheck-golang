@@ -1,4 +1,4 @@
-package usecase
+package registration_usecase_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestUtils(t *testing.T) {
+func TestRegistraion(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Auth Usecase Suite")
+	RunSpecs(t, "Registraion Suite")
 }
