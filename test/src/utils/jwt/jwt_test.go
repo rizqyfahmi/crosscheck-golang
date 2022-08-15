@@ -1,4 +1,4 @@
-package utils
+package jwt_test
 
 import (
 	"time"
