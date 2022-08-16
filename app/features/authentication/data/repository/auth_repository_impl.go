@@ -11,14 +11,14 @@ import (
 )
 
 type AuthRepositoryImpl struct {
-	authLocalData authenticationPersistent.AuthPersistentDataSource
-	clock         clock.Clock
+	authPersistent authenticationPersistent.AuthPersistent
+	clock          clock.Clock
 }
 
-func New(authLocalData authenticationPersistent.AuthPersistentDataSource, clock clock.Clock) authenticationRepository.AuthRepository {
+func New(authPersistent authenticationPersistent.AuthPersistent, clock clock.Clock) authenticationRepository.AuthRepository {
 	return &AuthRepositoryImpl{
-		authLocalData: authLocalData,
-		clock:         clock,
+		authPersistent: authPersistent,
+		clock:          clock,
 	}
 }
 
@@ -33,7 +33,7 @@ func (repo *AuthRepositoryImpl) Registration(param param.RegistrationParam) (*en
 		UpdatedAt: repo.clock.Now(),
 	}
 
-	if err := repo.authLocalData.Insert(&userModel); err != nil {
+	if err := repo.authPersistent.Insert(&userModel); err != nil {
 		return nil, &exception.Exception{
 			Message: exception.ErrorDatabase,
 			Causes:  err.Error(),

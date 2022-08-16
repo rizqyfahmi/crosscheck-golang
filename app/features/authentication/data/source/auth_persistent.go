@@ -1,9 +1,9 @@
-package authentication_data_source
+package authentication_persistent
 
 import (
 	"crosscheck-golang/app/features/authentication/data/model"
 )
 
-type AuthPersistentDataSource interface {
+type AuthPersistent interface {
 	Insert(userModel *model.UserModel) error
 }

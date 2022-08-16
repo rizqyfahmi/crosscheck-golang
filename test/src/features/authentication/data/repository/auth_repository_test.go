@@ -22,7 +22,7 @@ var _ = Describe("AuthenticationRepository", func() {
 	var mockParam *param.RegistrationParam
 	var mockUserModel *model.UserModel
 	var mockUserEntity *entity.UserEntity
-	var mockAuthPersistentDataSource *mock.MockAuthPersistentDataSource
+	var mockAuthPersistent *mock.MockAuthPersistent
 	var mockClock *mock.MockClock
 	var authRepository authenticationRepository.AuthRepository
 
@@ -32,9 +32,9 @@ var _ = Describe("AuthenticationRepository", func() {
 		ctrl := gomock.NewController(GinkgoT())
 		defer ctrl.Finish()
 
-		mockAuthPersistentDataSource = mock.NewMockAuthPersistentDataSource(ctrl)
+		mockAuthPersistent = mock.NewMockAuthPersistent(ctrl)
 		mockClock = mock.NewMockClock(ctrl)
-		authRepository = authenticationRepositoryImpl.New(mockAuthPersistentDataSource, mockClock)
+		authRepository = authenticationRepositoryImpl.New(mockAuthPersistent, mockClock)
 		mockParam = &param.RegistrationParam{
 			Name:            "rizqyfahmi",
 			Email:           "rizqyfahmi@email.com",
@@ -60,7 +60,7 @@ var _ = Describe("AuthenticationRepository", func() {
 		Context("When the authentication persistent data source returns error on insert registration data", func() {
 			It("makes AuthenticationRepository returns error database", func() {
 				mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
-				mockAuthPersistentDataSource.EXPECT().Insert(mockUserModel).Return(errors.New(exception.ErrorDatabase))
+				mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(errors.New(exception.ErrorDatabase))
 
 				result, err := authRepository.Registration(*mockParam)
 
@@ -73,7 +73,7 @@ var _ = Describe("AuthenticationRepository", func() {
 		Context("When registration data successfully inserted by the authentication persistent data source", func() {
 			It("makes AuthenticationRepository returns UserEntity", func() {
 				mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
-				mockAuthPersistentDataSource.EXPECT().Insert(mockUserModel).Return(nil)
+				mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(nil)
 
 				result, err := authRepository.Registration(*mockParam)
 
