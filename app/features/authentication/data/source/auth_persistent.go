@@ -21,5 +21,6 @@ func New(db *sqlx.DB) AuthPersistent {
 }
 
 func (s *AuthPersistentImpl) Insert(userModel *model.UserModel) error {
-	return nil
+	_, err := s.db.NamedExec("INSERT INTO users (:id, :name, :email, :password, :createdat, :updatedat)", userModel)
+	return err
 }
