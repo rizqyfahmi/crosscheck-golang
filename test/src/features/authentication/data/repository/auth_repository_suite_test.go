@@ -1,4 +1,4 @@
-package authentication_repository_test
+package auth_repository_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestAuthRepository(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Authentication Repository Suite")
+	RunSpecs(t, "Auth Repository Suite")
 }
