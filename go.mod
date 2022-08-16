@@ -4,21 +4,21 @@ go 1.18
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.4.2
-	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/mashingan/smapping v0.1.17
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/mock v1.4.4 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
-	github.com/lib/pq v1.1.1 // indirect
+	github.com/lib/pq v1.10.6 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/onsi/ginkgo/v2 v2.1.4 // indirect
