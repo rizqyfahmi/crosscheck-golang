@@ -1,4 +1,4 @@
-package authentication_repository_test
+package auth_repository_test
 
 import (
 	"errors"
