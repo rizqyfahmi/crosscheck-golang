@@ -1,4 +1,4 @@
-package registration_usecase
+package authusecase
 
 import (
 	"crosscheck-golang/app/exception"

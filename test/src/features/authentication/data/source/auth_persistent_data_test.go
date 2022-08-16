@@ -13,13 +13,13 @@ import (
 
 	"crosscheck-golang/app/exception"
 	"crosscheck-golang/app/features/authentication/data/model"
-	authentication_persistent "crosscheck-golang/app/features/authentication/data/source"
+	authpersistent "crosscheck-golang/app/features/authentication/data/source/persistent"
 )
 
 var _ = Describe("AuthPersistentData", func() {
 
 	var mockUserModel *model.UserModel
-	var authPersistent authentication_persistent.AuthPersistent
+	var authPersistent authpersistent.AuthPersistent
 	var mockDB *sql.DB
 	var mock sqlmock.Sqlmock
 	var sqlxDB *sqlx.DB
@@ -35,7 +35,7 @@ var _ = Describe("AuthPersistentData", func() {
 
 		sqlxDB = sqlx.NewDb(mockDB, "sqlmock")
 
-		authPersistent = authentication_persistent.New(sqlxDB)
+		authPersistent = authpersistent.New(sqlxDB)
 
 		mockUserModel = &model.UserModel{
 			Id:        time.Now().Format("20060102150405"),

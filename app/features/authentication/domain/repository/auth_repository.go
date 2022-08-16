@@ -1,4 +1,4 @@
-package authentication_repository
+package authrepository
 
 import (
 	"crosscheck-golang/app/exception"
