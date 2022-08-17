@@ -8,4 +8,5 @@ import (
 
 type AuthRepository interface {
 	Registration(param param.RegistrationParam) (*entity.UserEntity, *exception.Exception)
+	Login(username string) (*entity.UserLoginEntity, *exception.Exception)
 }

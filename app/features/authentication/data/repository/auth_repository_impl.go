@@ -48,3 +48,7 @@ func (repo *AuthRepositoryImpl) Registration(param param.RegistrationParam) (*en
 
 	return &userEntity, nil
 }
+
+func (repo *AuthRepositoryImpl) Login(username string) (*entity.UserLoginEntity, *exception.Exception) {
+	return nil, nil
+}
