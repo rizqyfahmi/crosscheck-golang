@@ -12,6 +12,7 @@ func main() {
 	configuration := config.New()
 
 	db := database.NewPostgres(configuration)
+	defer db.Close()
 
 	app := echo.New()
 

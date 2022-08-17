@@ -101,6 +101,7 @@ var _ = Describe("LoginUsecase", func() {
 			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
 			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
 			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
+			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 
 			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
@@ -117,8 +118,8 @@ var _ = Describe("LoginUsecase", func() {
 			anyString := gomock.Any().String()
 			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
 			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
-			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
-			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
+			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil).AnyTimes()
+			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString)).AnyTimes()
 
 			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
