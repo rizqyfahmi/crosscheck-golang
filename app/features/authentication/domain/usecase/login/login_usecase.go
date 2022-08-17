@@ -26,5 +26,39 @@ func New(authRepository authrepository.AuthRepository, accessTokenUtil jwt.JwtUt
 }
 
 func (usecase *LoginUsecase) Call(param param.LoginParam) (*entity.AuthEntity, *exception.Exception) {
-	return nil, nil
+	userLogin, errException := usecase.authRepository.Login(param.Username)
+	if errException != nil {
+		return nil, errException
+	}
+
+	err := usecase.hash.ComparePassword(userLogin.Password, param.Password)
+	if err != nil {
+		return nil, &exception.Exception{
+			Message: exception.ErrorEncryption,
+			Causes:  err.Error(),
+		}
+	}
+
+	accessToken, err := usecase.accessTokenUtil.GenerateToken(userLogin.Id)
+
+	if err != nil {
+		return nil, &exception.Exception{
+			Message: exception.ErrorAccessToken,
+			Causes:  err.Error(),
+		}
+	}
+
+	refeshToken, err := usecase.refreshTokenUtil.GenerateToken(userLogin.Id)
+
+	if err != nil {
+		return nil, &exception.Exception{
+			Message: exception.ErrorRefreshToken,
+			Causes:  err.Error(),
+		}
+	}
+
+	return &entity.AuthEntity{
+		AccessToken:  *accessToken,
+		RefreshToken: *refeshToken,
+	}, nil
 }
