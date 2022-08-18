@@ -9,15 +9,19 @@ import (
 	jwtUtil "crosscheck-golang/app/utils/jwt"
 )
 
-type RegistrationUsecase struct {
+type RegistrationUsecase interface {
+	Call(param param.RegistrationParam) (*entity.AuthEntity, *exception.Exception)
+}
+
+type RegistrationUsecaseImpl struct {
 	authRepository   authenticationRepository.AuthRepository
 	accessTokenUtil  jwtUtil.JwtUtil
 	refreshTokenUtil jwtUtil.JwtUtil
 	hash             hash.Hash
 }
 
-func New(authRepository authenticationRepository.AuthRepository, accessTokenUtil jwtUtil.JwtUtil, refreshTokenUtil jwtUtil.JwtUtil, hash hash.Hash) *RegistrationUsecase {
-	return &RegistrationUsecase{
+func New(authRepository authenticationRepository.AuthRepository, accessTokenUtil jwtUtil.JwtUtil, refreshTokenUtil jwtUtil.JwtUtil, hash hash.Hash) RegistrationUsecase {
+	return &RegistrationUsecaseImpl{
 		authRepository,
 		accessTokenUtil,
 		refreshTokenUtil,
@@ -25,7 +29,7 @@ func New(authRepository authenticationRepository.AuthRepository, accessTokenUtil
 	}
 }
 
-func (usecase *RegistrationUsecase) Call(param param.RegistrationParam) (*entity.AuthEntity, *exception.Exception) {
+func (usecase *RegistrationUsecaseImpl) Call(param param.RegistrationParam) (*entity.AuthEntity, *exception.Exception) {
 
 	hashedPassword, err := usecase.hash.HashPassword(param.Password)
 

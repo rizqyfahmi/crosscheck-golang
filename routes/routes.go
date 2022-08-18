@@ -1,25 +1,30 @@
 package routes
 
 import (
-	AuthRepository "crosscheck-golang/app/features/authentication/data/repository"
-	AuthLocalDataSource "crosscheck-golang/app/features/authentication/data/source"
-	AuthUsecase "crosscheck-golang/app/features/authentication/domain/usecase"
-	AuthController "crosscheck-golang/app/features/authentication/presentation/controller"
+	authRepository "crosscheck-golang/app/features/authentication/data/repository"
+	authpersistent "crosscheck-golang/app/features/authentication/data/source/persistent"
+	authregistrationuc "crosscheck-golang/app/features/authentication/domain/usecase/registration"
+	authcontroller "crosscheck-golang/app/features/authentication/presentation/http/controller"
+	authrouter "crosscheck-golang/app/features/authentication/presentation/http/router"
+	"crosscheck-golang/app/utils/bcrypt"
+	"crosscheck-golang/app/utils/clock"
+	"crosscheck-golang/app/utils/hash"
+	jwtUtils "crosscheck-golang/app/utils/jwt"
 	"crosscheck-golang/config"
 	"log"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
 
 type Route struct {
 	app    *echo.Echo
-	db     *gorm.DB
+	db     *sqlx.DB
 	config *config.Config
 }
 
-func New(app *echo.Echo, db *gorm.DB, config *config.Config) *Route {
+func New(app *echo.Echo, db *sqlx.DB, config *config.Config) *Route {
 	return &Route{
 		app,
 		db,
@@ -47,17 +52,14 @@ func (r *Route) getGeneralRoute() {
 
 // Get auth route privately
 func (r *Route) getAuthRoute() {
-	localSource := AuthLocalDataSource.New(r.db)
-	repository := AuthRepository.New(localSource)
-	usecase := AuthUsecase.New(repository, *r.config)
-	c := AuthController.New(usecase)
-
-	router := r.app.Group("/auth")
-
-	router.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello Auth")
-	})
-
-	router.POST("/registration", c.Registration)
-
+	accessToken := jwtUtils.New(r.config.AccessToken.Secret, r.config.AccessToken.Expires)
+	refreshToken := jwtUtils.New(r.config.RefreshToken.Secret, r.config.RefreshToken.Expires)
+	hash := hash.New(bcrypt.New())
+	clock := clock.New()
+	authPersistent := authpersistent.New(r.db)
+	authRepository := authRepository.New(authPersistent, clock)
+	authRegistrationUsecase := authregistrationuc.New(authRepository, accessToken, refreshToken, hash)
+	authController := authcontroller.New(authRegistrationUsecase)
+	authRouter := authrouter.New(r.app, authController)
+	authRouter.Run()
 }
