@@ -16,23 +16,8 @@ jobs:
         run: sudo apt-get -s upgrade | grep -P "\d\K upgraded"
       - name: Check go version
         run: go version
-      - name: Install make
+      - name: Install golangci-lint
         run: |
-          sudo apt-get install make
-          make -version
-      - name: Install ginkgo
-        run: |
-          go install github.com/onsi/ginkgo/v2/ginkgo
-          ginkgo version
-      - name: Install golang-migrate
-        run: |
-          curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | sudo bash
-          sudo apt-get update
-          sudo apt-get install migrate
-          migrate -version
-      - name: Install mockgen
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install mockgen
-          mockgen
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+          golangci-lint --version
           
