@@ -12,8 +12,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '>=1.17.0'
-      - name: Update dependecies
-        run: sudo apt-get -s upgrade | grep -P "\d\K upgraded"
       - name: Check go version
         run: go version
       - name: Install golangci-lint
@@ -22,4 +20,26 @@ jobs:
           golangci-lint version
       - name: Run lint
         run: golangci-lint run
+
+  unit-test:
+    name: Unit Test
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.0'
+      - name: Install make
+        run: |
+          sudo apt-get -s upgrade | grep -P "\d\K upgraded"
+          sudo apt-get install make
+          make -version
+      - name: Install ginkgo
+        run: |
+          go install github.com/onsi/ginkgo/v2/ginkgo
+          ginkgo version
+      - name: Run test
+        run: make test-run
+
           
