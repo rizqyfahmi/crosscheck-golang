@@ -4,7 +4,6 @@ import (
 	"crosscheck-golang/app/exception"
 	"crosscheck-golang/app/features/authentication/data/param"
 	registrationusecase "crosscheck-golang/app/features/authentication/domain/usecase/registration"
-	"errors"
 	"log"
 	"net/http"
 
@@ -22,22 +21,29 @@ func New(registraion registrationusecase.RegistrationUsecase) *AuthController {
 }
 
 func (controller *AuthController) Registration(c echo.Context) error {
-	regParam := new(param.RegistrationParam)
+	param := new(param.RegistrationParam)
 
-	if err := c.Bind(regParam); err != nil {
-		log.Println("Error param!")
-		log.Printf("%+v\n", regParam)
-		return err
+	log.Printf("\nRegistration controller: binding request parameters")
+	if err := c.Bind(param); err != nil {
+		log.Printf("\nRegistration controller: error binding! -> %+v", err)
+		return c.JSON(http.StatusInternalServerError, exception.InternalServerError)
 	}
 
-	authEntity, err := controller.registraion.Call(*regParam)
+	log.Printf("\nRegistration controller: validating request parameters")
+	if err := c.Validate(param); err != nil {
+		log.Printf("\nRegistration controller: error validation! -> %+v", err)
+		return c.JSON(http.StatusBadRequest, exception.BadRequest)
+	}
+
+	log.Printf("\nRegistration controller: executing registration usecase")
+	authEntity, err := controller.registraion.Call(*param)
 
 	if err != nil {
-		log.Println("Error usecase!")
-		log.Printf("%+v\n", err)
-		return errors.New(exception.BadRequest)
+		log.Printf("\nRegistration controller: error usecase! -> %+v", err)
+		return c.JSON(http.StatusBadRequest, exception.BadRequest)
 	}
 
+	log.Println("Completed!")
 	return c.JSON(http.StatusOK, authEntity)
 
 }
