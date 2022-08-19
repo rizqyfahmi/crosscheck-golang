@@ -24,4 +24,8 @@ jobs:
         run: |
           go install github.com/onsi/ginkgo/v2/ginkgo
           ginkgo version
+      - name: Install golang-migrate
+        run: |
+          sudo apt-get install migrate
+          migrate -version
           
