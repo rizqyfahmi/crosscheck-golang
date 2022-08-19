@@ -17,3 +17,6 @@ jobs:
           sudo apt-get -s upgrade | grep -P "\d\K upgraded"
           echo "Check go version"
           go version
+          echo "Check make version"
+          sudo apt-get install make
+          make -version
