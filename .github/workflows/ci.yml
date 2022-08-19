@@ -33,6 +33,6 @@ jobs:
       - name: Install mockgen
         run: |
           sudo apt-get update
-          sudo apt-get install mockgen
-          mockgen -version
+          sudo apt-get -y install mockgen
+          mockgen
           
