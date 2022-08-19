@@ -36,6 +36,21 @@ func (m *MockAuthRepository) EXPECT() *MockAuthRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Login mocks base method.
+func (m *MockAuthRepository) Login(username string) (*entity.UserLoginEntity, *exception.Exception) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", username)
+	ret0, _ := ret[0].(*entity.UserLoginEntity)
+	ret1, _ := ret[1].(*exception.Exception)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockAuthRepositoryMockRecorder) Login(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuthRepository)(nil).Login), username)
+}
+
 // Registration mocks base method.
 func (m *MockAuthRepository) Registration(param param.RegistrationParam) (*entity.UserEntity, *exception.Exception) {
 	m.ctrl.T.Helper()

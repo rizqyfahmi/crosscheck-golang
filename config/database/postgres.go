@@ -20,16 +20,15 @@ func NewPostgres(c *config.Config) *sqlx.DB {
 
 	db, err := sqlx.Open("postgres", connection)
 	if err != nil {
-		log.Println("Error Connect!")
+		log.Println("Error connect!")
 		log.Fatal(err)
 	}
-
-	defer db.Close()
 
 	if err := db.Ping(); err != nil {
-		log.Println("Error Ping!")
+		log.Println("Error ping!")
 		log.Fatal(err)
 	}
 
+	log.Println("Database successfully connected!")
 	return db
 }

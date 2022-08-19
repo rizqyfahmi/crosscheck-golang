@@ -1,4 +1,4 @@
-package authentication_repository
+package authrepository
 
 import (
 	"crosscheck-golang/app/exception"
@@ -8,4 +8,5 @@ import (
 
 type AuthRepository interface {
 	Registration(param param.RegistrationParam) (*entity.UserEntity, *exception.Exception)
+	Login(username string) (*entity.UserLoginEntity, *exception.Exception)
 }

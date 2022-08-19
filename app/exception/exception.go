@@ -8,6 +8,11 @@ const (
 	ErrorEncryption    = "Error encryption"
 )
 
+const (
+	InternalServerError = "Internal server error"
+	BadRequest          = "Bad request"
+)
+
 type Exception struct {
 	Message string
 	Causes  string

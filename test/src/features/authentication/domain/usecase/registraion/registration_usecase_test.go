@@ -4,7 +4,7 @@ import (
 	"crosscheck-golang/app/exception"
 	"crosscheck-golang/app/features/authentication/data/param"
 	"crosscheck-golang/app/features/authentication/domain/entity"
-	RegistationUsecase "crosscheck-golang/app/features/authentication/domain/usecase"
+	authregistrationuc "crosscheck-golang/app/features/authentication/domain/usecase/registration"
 	mock "crosscheck-golang/test/mocks"
 	"errors"
 
@@ -54,7 +54,7 @@ var _ = Describe("RegistrationUsecase", func() {
 			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).Should(BeNil()) // We don't need Succeed, because we use a custom error struct
@@ -68,7 +68,7 @@ var _ = Describe("RegistrationUsecase", func() {
 		It("makes RegistrationUsecase returns ErrorEncryption", func() {
 			mockHash.EXPECT().HashPassword(mockParam.Password).Return(nil, errors.New(gomock.Any().String()))
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
@@ -89,7 +89,7 @@ var _ = Describe("RegistrationUsecase", func() {
 			mockHash.EXPECT().HashPassword(mockParam.Password).Return(&anyString, nil)
 			mockAuthRepository.EXPECT().Registration(gomock.Any()).Return(nil, mockException)
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
@@ -110,7 +110,7 @@ var _ = Describe("RegistrationUsecase", func() {
 			mockHash.EXPECT().HashPassword(mockParam.Password).Return(&anyString, nil)
 			mockAuthRepository.EXPECT().Registration(gomock.Any()).Return(nil, mockException)
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
@@ -127,7 +127,7 @@ var _ = Describe("RegistrationUsecase", func() {
 			mockAuthRepository.EXPECT().Registration(gomock.Any()).Return(mockEntity, nil)
 			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
@@ -145,7 +145,7 @@ var _ = Describe("RegistrationUsecase", func() {
 			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
 
-			usecase := RegistationUsecase.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+			usecase := authregistrationuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
 			entity, err := usecase.Call(*mockParam)
 
 			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
