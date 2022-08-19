@@ -1,6 +1,6 @@
 ## Prolog
 
-This aim of this project was creating a REST API that is implementing Clean Architecture, and TDD based on Golang. However, it has not covered possibilities that it also can be used for more reasons
+This aim of this project was creating a REST API that is implementing Clean Architecture, and BDD based on Golang. However, it has not covered possibilities that it also can be used for more reasons
 
 ## Prerequisites
 
