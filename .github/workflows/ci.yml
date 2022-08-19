@@ -1,0 +1,19 @@
+name: Crosscheck-CI
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  lint: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.0'
+      - name: Run lint
+        run: |
+          echo "Update dependecies"
+          sudo apt-get -s upgrade | grep -P "\d\K upgraded"
+          echo "Check go version"
+          go version
