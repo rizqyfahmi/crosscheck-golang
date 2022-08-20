@@ -127,3 +127,6 @@ jobs:
       - name: Docker remove crosscheck-golang image
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest -f'
+      - name: Remove docker volume
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'rm -rf ${{ github.event.repository.name }}'
