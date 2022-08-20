@@ -114,7 +114,16 @@ jobs:
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker images'
       - name: Docker pull crosscheck-golang image
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'
       - name: Docker run container
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --network internal-container-network --name app-container ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'    
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --network internal-container-network --name app-container -d ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'
+      - name: Docker stop container
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker stop app-container && docker stop app-database'
+      - name: Docker remove container
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rm app-container && docker rm app-database'
+      - name: Docker remove crosscheck-golang image
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest -f'
