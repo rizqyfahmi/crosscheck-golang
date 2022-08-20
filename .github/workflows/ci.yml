@@ -63,6 +63,16 @@ jobs:
           push: true
           tags: rizqyfahmi/crosscheck-golang:latest
   
+  # Before do this step, there is extra things that we need to do, include:
+  # 1. Open the server/vm
+  # 2. Create new rsa key: `ssh-keygen -t rsa -b 4096 -C "user@host" -q -N ""`. Where user is the user that we use to enter the server, and host is the IP address of the server 
+  # 3. Enter the name of rsa file or use the default: id_rsa
+  # 4. It will generate 2 file: id_rsa (private key) and id_rsa.pub (public key)
+  # 5. Execute cat id_rsa.pub >> ~/.ssh/authorized_keys
+  # 6. Go to github settings
+  # 7. Add a new secret repository that is called SSH_PRIVATE_KEY, then copy the value of id_rsa (private key) from the server/vm into SSH_PRIVATE_KEY value field
+  # 8. Add a new secret repository that is called SSH_USERNAME, then fill the value field with user that we use to enter the server
+  # 9. Add a new secret repository that is called SSH_HOST, then fill the value field with ip host that we use to enter the server
   deploy:
     name: Deploy
     needs: [build]
@@ -77,4 +87,7 @@ jobs:
       - name: Login SSH
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
-          ls -lah
+      - name: Execute SSH remote command
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'ls -lah'
+          
