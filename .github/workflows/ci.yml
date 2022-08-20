@@ -117,4 +117,4 @@ jobs:
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}'
       - name: Docker run container
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 -e DB_HOST={{ secrets.SSH_HOST }} --network internal-container-network --name app-container ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'    
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --network internal-container-network --name app-container ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'    
