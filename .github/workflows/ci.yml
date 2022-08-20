@@ -48,17 +48,85 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: rizqyfahmi/crosscheck-golang:latest
+      - name: Setup https
+        run: |
+          sudo apt update
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+      - name: Setup docker repository
+        run: |
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - name: Install docker ce
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+          docker info
+      - name: Build Image
+        run: |
+          docker build -t ${{ github.event.repository.name }}:latest . --progress=plain
+          docker images
+      - name: Push Image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker tag ${{ github.event.repository.name }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+  
+  # # Before do this step, there is extra things that we need to do, include:
+  # # 1. Open the server/vm
+  # # 2. Create new rsa key: `ssh-keygen -t rsa -b 4096 -C "user@host" -q -N ""`. Where user is the user that we use to enter the server, and host is the IP address of the server 
+  # # 3. Enter the name of rsa file or use the default: id_rsa
+  # # 4. It will generate 2 file: id_rsa (private key) and id_rsa.pub (public key)
+  # # 5. Execute cat id_rsa.pub >> ~/.ssh/authorized_keys
+  # # 6. Go to github settings
+  # # 7. Add a new secret repository that is called SSH_PRIVATE_KEY, then copy the value of id_rsa (private key) from the server/vm into SSH_PRIVATE_KEY value field
+  # # 8. Add a new secret repository that is called SSH_USERNAME, then fill the value field with user that we use to enter the server
+  # # 9. Add a new secret repository that is called SSH_HOST, then fill the value field with ip host that we use to enter the server
+  # deploy:
+  #   name: Deploy
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Create SSH
+  #       run: |
+  #         mkdir -p ~/.ssh/
+  #         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+  #         sudo chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+  #     - name: Login SSH
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
+  #     - name: Create project directory if not exist
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} '[ -d ${{ github.event.repository.name }} ] || mkdir ${{ github.event.repository.name }} && ls -lah && cd ${{ github.event.repository.name }} && [ -d data ] || mkdir data && ls -lah'
+  #     - name: Copy vm.sh
+  #       run: |
+  #         ls -lah
+  #         ls -lah script
+  #         chmod -R 700 script
+  #         cd script && scp vm.sh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}://${{ secrets.SSH_USERNAME }}/${{ github.event.repository.name }}
+  #     - name: Run vm.sh
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ github.event.repository.name }} && ls -lah && chmod 700 vm.sh && ./vm.sh'
+  #     - name: Docker list images
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker images'
+  #     - name: Docker pull crosscheck-golang image
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'
+  #     - name: Docker run container
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --network internal-container-network --name app-container -d ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'
+  #     - name: Docker stop container
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker stop app-container && docker stop app-database'
+  #     - name: Docker remove container
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rm app-container && docker rm app-database'
+  #     - name: Docker remove crosscheck-golang image
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rmi $(docker images --filter=reference='${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}' --format "{{.ID}}")'
+  #     - name: Remove docker volume
+  #       run: |
+  #         ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'rm -rf ${{ github.event.repository.name }}'

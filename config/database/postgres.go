@@ -18,6 +18,8 @@ func NewPostgres(c *config.Config) *sqlx.DB {
 		c.DbConfig.Password,
 	)
 
+	log.Println(connection)
+
 	db, err := sqlx.Open("postgres", connection)
 	if err != nil {
 		log.Println("Error connect!")
