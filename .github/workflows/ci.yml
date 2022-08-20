@@ -126,7 +126,7 @@ jobs:
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rm app-container && docker rm app-database'
       - name: Docker remove crosscheck-golang image
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest -f'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker rmi $(docker images --filter=reference='${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}' --format "{{.ID}}")'
       - name: Remove docker volume
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'rm -rf ${{ github.event.repository.name }}'
