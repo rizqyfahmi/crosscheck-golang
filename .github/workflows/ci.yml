@@ -96,12 +96,18 @@ jobs:
       - name: Login SSH
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
+      - name: Create project directory if not exist
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} '[ -d crosscheck ] || mkdir crosscheck || ls -lah || cd crosscheck || [ -d data ] || mkdir data'
       - name: Docker list images
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker images'
-      - name: Docker pull image
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'ls -lah || docker images'
+      - name: Docker pull crosscheck-golang image
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull rizqyfahmi/crosscheck-golang'
+      - name: Docker pull postgres:11-alpine
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull postgres:11-alpine'
       - name: Docker run container
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --name crosscheck-golang-container rizqyfahmi/crosscheck-golang'    
