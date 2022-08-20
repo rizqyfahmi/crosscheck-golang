@@ -99,17 +99,22 @@ jobs:
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}
       - name: Create project directory if not exist
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} '[ -d ${{ github.event.repository.name }} ] || mkdir ${{ github.event.repository.name }} || ls -lah || cd ${{ github.event.repository.name }} || [ -d data ] || mkdir data'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} '[ -d ${{ github.event.repository.name }} ] || mkdir ${{ github.event.repository.name }} && ls -lah && cd ${{ github.event.repository.name }} && [ -d data ] || mkdir data && ls -lah'
       - name: Copy vm.sh
         run: |
           ls -lah
-          scp script/vm.sh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/${{ github.event.repository.name }}
+          ls -lah script
+          chmod -R 700 script
+          cd script && scp vm.sh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}://${{ secrets.SSH_USERNAME }}/${{ github.event.repository.name }}
+      - name: Run vm.sh
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ github.event.repository.name }} && ls -lah && chmod 700 vm.sh && ./vm.sh'
       - name: Docker list images
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker images'
       - name: Docker pull crosscheck-golang image
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull rizqyfahmi/crosscheck-golang'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker pull ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}'
       - name: Docker run container
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --name crosscheck-golang-container rizqyfahmi/crosscheck-golang'    
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'docker run -p 8081:8081 --name ${{ secrets.DOCKER_USERNAME }}-container ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest'    
