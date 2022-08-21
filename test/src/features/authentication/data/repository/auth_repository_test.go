@@ -21,7 +21,9 @@ var _ = Describe("AuthenticationRepository", func() {
 
 	var mockParam *param.RegistrationParam
 	var mockUserModel *model.UserModel
+	var mockUserLoginModel *model.UserModel
 	var mockUserEntity *entity.UserEntity
+	var mockUserLoginEntity *entity.UserLoginEntity
 	var mockAuthPersistent *mock.MockAuthPersistent
 	var mockClock *mock.MockClock
 	var authRepository authenticationRepository.AuthRepository
@@ -49,10 +51,22 @@ var _ = Describe("AuthenticationRepository", func() {
 			CreatedAt: mockNow,
 			UpdatedAt: mockNow,
 		}
+		mockUserLoginModel = &model.UserModel{
+			Id:        mockNow.Format("20060102150405"),
+			Name:      "rizqyfahmi",
+			Email:     "rizqyfahmi@email.com",
+			Password:  "$2a$12$ZFHhRoj2.D2Mq1e9GOQRjuTplhhtKbzvhJVLLmGLeHnzkGS89wO4S",
+			CreatedAt: mockNow,
+			UpdatedAt: mockNow,
+		}
 		mockUserEntity = &entity.UserEntity{
 			Id:    mockNow.Format("20060102150405"),
 			Name:  "rizqyfahmi",
 			Email: "rizqyfahmi@email.com",
+		}
+		mockUserLoginEntity = &entity.UserLoginEntity{
+			Id:       mockNow.Format("20060102150405"),
+			Password: "$2a$12$ZFHhRoj2.D2Mq1e9GOQRjuTplhhtKbzvhJVLLmGLeHnzkGS89wO4S",
 		}
 	})
 
@@ -81,6 +95,32 @@ var _ = Describe("AuthenticationRepository", func() {
 				Expect(result.Id).Should(Equal(mockUserEntity.Id))
 				Expect(result.Name).Should(Equal(mockUserEntity.Name))
 				Expect(result.Email).Should(Equal(mockUserEntity.Email))
+			})
+		})
+	})
+
+	Context("Login", func() {
+		Describe("Username as the parameter", func() {
+			When("Authentication repository calls GetByUsername in authentication persistent data source", func() {
+				It("returns an exception that is called errorDatabase", func() {
+					mockAuthPersistent.EXPECT().GetByUsername(&mockParam.Email).Return(nil, errors.New(exception.ErrorDatabase))
+
+					result, err := authRepository.Login(mockParam.Email)
+
+					Expect(err).ShouldNot(BeNil())
+					Expect(err.Message).Should(Equal(exception.ErrorDatabase))
+					Expect(result).Should(BeNil())
+				})
+
+				It("returns a UserLoginEntity", func() {
+					mockAuthPersistent.EXPECT().GetByUsername(&mockParam.Email).Return(mockUserLoginModel, nil)
+
+					result, err := authRepository.Login(mockParam.Email)
+
+					Expect(err).Should(BeNil())
+					Expect(result.Id).Should(Equal(mockUserLoginEntity.Id))
+					Expect(result.Password).Should(Equal(mockUserLoginEntity.Password))
+				})
 			})
 		})
 	})
