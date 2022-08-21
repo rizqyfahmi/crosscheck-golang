@@ -10,15 +10,19 @@ import (
 	"log"
 )
 
-type LoginUsecase struct {
+type LoginUsecase interface {
+	Call(param param.LoginParam) (*entity.AuthEntity, *exception.Exception)
+}
+
+type LoginUsecaseImpl struct {
 	authRepository   authrepository.AuthRepository
 	accessTokenUtil  jwt.JwtUtil
 	refreshTokenUtil jwt.JwtUtil
 	hash             hash.Hash
 }
 
-func New(authRepository authrepository.AuthRepository, accessTokenUtil jwt.JwtUtil, refreshTokenUtil jwt.JwtUtil, hash hash.Hash) *LoginUsecase {
-	return &LoginUsecase{
+func New(authRepository authrepository.AuthRepository, accessTokenUtil jwt.JwtUtil, refreshTokenUtil jwt.JwtUtil, hash hash.Hash) LoginUsecase {
+	return &LoginUsecaseImpl{
 		authRepository,
 		accessTokenUtil,
 		refreshTokenUtil,
@@ -26,7 +30,7 @@ func New(authRepository authrepository.AuthRepository, accessTokenUtil jwt.JwtUt
 	}
 }
 
-func (usecase *LoginUsecase) Call(param param.LoginParam) (*entity.AuthEntity, *exception.Exception) {
+func (usecase *LoginUsecaseImpl) Call(param param.LoginParam) (*entity.AuthEntity, *exception.Exception) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println(r)

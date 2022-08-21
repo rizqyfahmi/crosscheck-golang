@@ -22,6 +22,7 @@ func New(echo *echo.Echo, controller *authcontroller.AuthController) *AuthRouter
 func (s *AuthRouter) Run() {
 	router := s.echo.Group("/auth")
 	router.POST("/registration", s.controller.Registration)
+	router.POST("/login", s.controller.Login)
 	router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello Auth")
 	})
