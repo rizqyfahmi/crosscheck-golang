@@ -3,6 +3,7 @@ package routes
 import (
 	authRepository "crosscheck-golang/app/features/authentication/data/repository"
 	authpersistent "crosscheck-golang/app/features/authentication/data/source/persistent"
+	authloginuc "crosscheck-golang/app/features/authentication/domain/usecase/login"
 	authregistrationuc "crosscheck-golang/app/features/authentication/domain/usecase/registration"
 	authcontroller "crosscheck-golang/app/features/authentication/presentation/http/controller"
 	authrouter "crosscheck-golang/app/features/authentication/presentation/http/router"
@@ -59,7 +60,8 @@ func (r *Route) getAuthRoute() {
 	authPersistent := authpersistent.New(r.db)
 	authRepository := authRepository.New(authPersistent, clock)
 	authRegistrationUsecase := authregistrationuc.New(authRepository, accessToken, refreshToken, hash)
-	authController := authcontroller.New(authRegistrationUsecase)
+	authLoginUsecase := authloginuc.New(authRepository, accessToken, refreshToken, hash)
+	authController := authcontroller.New(authRegistrationUsecase, authLoginUsecase)
 	authRouter := authrouter.New(r.app, authController)
 	authRouter.Run()
 }

@@ -34,6 +34,21 @@ func (m *MockAuthPersistent) EXPECT() *MockAuthPersistentMockRecorder {
 	return m.recorder
 }
 
+// GetByUsername mocks base method.
+func (m *MockAuthPersistent) GetByUsername(username *string) (*model.UserModel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUsername", username)
+	ret0, _ := ret[0].(*model.UserModel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUsername indicates an expected call of GetByUsername.
+func (mr *MockAuthPersistentMockRecorder) GetByUsername(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockAuthPersistent)(nil).GetByUsername), username)
+}
+
 // Insert mocks base method.
 func (m *MockAuthPersistent) Insert(userModel *model.UserModel) error {
 	m.ctrl.T.Helper()
