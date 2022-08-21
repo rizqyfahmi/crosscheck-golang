@@ -8,6 +8,7 @@ import (
 	"crosscheck-golang/app/features/authentication/domain/entity"
 	authepository "crosscheck-golang/app/features/authentication/domain/repository"
 	"crosscheck-golang/app/utils/clock"
+	"log"
 )
 
 type AuthRepositoryImpl struct {
@@ -50,5 +51,24 @@ func (repo *AuthRepositoryImpl) Registration(param param.RegistrationParam) (*en
 }
 
 func (repo *AuthRepositoryImpl) Login(username string) (*entity.UserLoginEntity, *exception.Exception) {
-	return nil, nil
+
+	log.Println("\nAuthentication repository: executing GetByUsername in authentication persistent data source")
+	userModel, err := repo.authPersistent.GetByUsername(&username)
+
+	if err != nil {
+		log.Printf("\nAuthentication repository: error persistent data source! -> %+v", err)
+		return nil, &exception.Exception{
+			Message: exception.ErrorDatabase,
+			Causes:  err.Error(),
+		}
+	}
+
+	log.Println("\nAuthentication repository: converting user model into user login entity")
+	userLoginEntity := entity.UserLoginEntity{
+		Id:       userModel.Id,
+		Password: userModel.Password,
+	}
+
+	log.Println("\nAuthentication repository: completed!")
+	return &userLoginEntity, nil
 }
