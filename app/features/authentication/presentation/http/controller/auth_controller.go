@@ -72,6 +72,7 @@ func (controller *AuthController) Login(c echo.Context) error {
 	if err := c.Bind(param); err != nil {
 		log.Printf("\nLogin controller: error binding! -> %+v", err)
 		return c.JSON(http.StatusInternalServerError, response.Response{
+			Status:  response.ResponseStatusError,
 			Message: exception.InternalServerError,
 		})
 	}
@@ -80,6 +81,7 @@ func (controller *AuthController) Login(c echo.Context) error {
 	if err := c.Validate(param); err != nil {
 		log.Printf("\nLogin controller: error validation! -> %+v", err)
 		return c.JSON(http.StatusBadRequest, response.Response{
+			Status:  response.ResponseStatusError,
 			Message: exception.BadRequest,
 		})
 	}
@@ -90,13 +92,15 @@ func (controller *AuthController) Login(c echo.Context) error {
 	if err != nil {
 		log.Printf("\nLogin controller: error usecase! -> %+v", err)
 		return c.JSON(http.StatusBadRequest, response.Response{
+			Status:  response.ResponseStatusError,
 			Message: exception.BadRequest,
 		})
 	}
 
 	log.Println("\nLogin controller: Completed!")
 	return c.JSON(http.StatusOK, response.Response{
-		Message: response.RequestSuccess,
+		Status:  response.ResponseStatusSuccess,
+		Message: response.ResponseMessageSuccess,
 		Data:    authEntity,
 	})
 
