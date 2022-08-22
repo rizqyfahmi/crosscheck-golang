@@ -70,37 +70,37 @@ var _ = Describe("AuthenticationRepository", func() {
 		}
 	})
 
-	Describe("Registration", func() {
-		Context("When the authentication persistent data source returns error on insert registration data", func() {
-			It("makes AuthenticationRepository returns error database", func() {
-				mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
-				mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(errors.New(exception.ErrorDatabase))
+	Context("Registration", func() {
+		Describe("name, email, and password as the parameters", func() {
+			When("Authentication repository calls insert in authentication persistent data source", func() {
+				It("returns an exception that is called errorDatabase", func() {
+					mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
+					mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(errors.New(exception.ErrorDatabase))
 
-				result, err := authRepository.Registration(*mockParam)
+					result, err := authRepository.Registration(*mockParam)
 
-				Expect(err).ShouldNot(BeNil())
-				Expect(err.Message).Should(Equal(exception.ErrorDatabase))
-				Expect(result).Should(BeNil())
-			})
-		})
+					Expect(err).ShouldNot(BeNil())
+					Expect(err.Message).Should(Equal(exception.ErrorDatabase))
+					Expect(result).Should(BeNil())
+				})
 
-		Context("When registration data successfully inserted by the authentication persistent data source", func() {
-			It("makes AuthenticationRepository returns UserEntity", func() {
-				mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
-				mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(nil)
+				It("returns a UserEntity", func() {
+					mockClock.EXPECT().Now().Return(mockNow).AnyTimes()
+					mockAuthPersistent.EXPECT().Insert(mockUserModel).Return(nil)
 
-				result, err := authRepository.Registration(*mockParam)
+					result, err := authRepository.Registration(*mockParam)
 
-				Expect(err).Should(BeNil())
-				Expect(result.Id).Should(Equal(mockUserEntity.Id))
-				Expect(result.Name).Should(Equal(mockUserEntity.Name))
-				Expect(result.Email).Should(Equal(mockUserEntity.Email))
+					Expect(err).Should(BeNil())
+					Expect(result.Id).Should(Equal(mockUserEntity.Id))
+					Expect(result.Name).Should(Equal(mockUserEntity.Name))
+					Expect(result.Email).Should(Equal(mockUserEntity.Email))
+				})
 			})
 		})
 	})
 
 	Context("Login", func() {
-		Describe("Username as the parameter", func() {
+		Describe("Username as the parameters", func() {
 			When("Authentication repository calls GetByUsername in authentication persistent data source", func() {
 				It("returns an exception that is called errorDatabase", func() {
 					mockAuthPersistent.EXPECT().GetByUsername(&mockParam.Email).Return(nil, errors.New(exception.ErrorDatabase))
