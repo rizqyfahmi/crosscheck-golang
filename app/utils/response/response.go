@@ -1,10 +1,13 @@
 package response
 
 const (
-	RequestSuccess = "Request successfully processed"
+	ResponseMessageSuccess = "Request successfully processed"
+	ResponseStatusSuccess  = "success"
+	ResponseStatusError    = "error"
 )
 
 type Response struct {
+	Status  string      `json:"status"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }

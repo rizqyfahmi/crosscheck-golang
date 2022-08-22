@@ -64,184 +64,220 @@ var _ = Describe("AuthController", func() {
 		router.POST("/login", app.Login)
 	})
 
-	Describe("Registration", func() {
-		Context("When there is a valid request", func() {
-			It("returns success", func() {
-				mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(mockAuthEntity, nil).Times(1)
+	Context("Registration", func() {
+		Describe("Name, email, password, and confirmPassword as the request parameters", func() {
+			When("The request parameter can't be binded caught by different content-type", func() {
+				It("returns internal server error", func() {
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/json")
 
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusOK))
-
+					Expect(res).Should(HaveHTTPStatus(http.StatusInternalServerError))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.InternalServerError))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The request parameter can't be binded caught by error validation", func() {
+				It("returns bad request", func() {
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-		Context("When there is invalid request that is caught by different content-type", func() {
-			It("returns internal server error", func() {
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/json")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusInternalServerError))
-
+					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The usecase fails to encrypt password", func() {
+				It("returns bad request", func() {
+					mockException := &exception.Exception{
+						Message: exception.ErrorEncryption,
+						Causes:  gomock.Any().String(),
+					}
+					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-		Context("When there is invalid request that is caught by insufficient required parameters", func() {
-			It("returns bad request", func() {
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				rec := httptest.NewRecorder()
+					rec := httptest.NewRecorder()
 
-				e.ServeHTTP(rec, req)
+					e.ServeHTTP(rec, req)
 
-				res := rec.Result()
-				defer res.Body.Close()
+					res := rec.Result()
+					defer res.Body.Close()
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
+					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The usecase fails to insert data into database", func() {
+				It("returns bad request", func() {
+					mockException := &exception.Exception{
+						Message: exception.ErrorDatabase,
+						Causes:  gomock.Any().String(),
+					}
+					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-		Context("When there is invalid request that is caught by error password encryption in usecase", func() {
-			It("returns bad request", func() {
-				mockException := &exception.Exception{
-					Message: exception.ErrorEncryption,
-					Causes:  gomock.Any().String(),
-				}
-				mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
-
+					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The usecase fails to generate access token", func() {
+				It("returns bad request", func() {
+					mockException := &exception.Exception{
+						Message: exception.ErrorAccessToken,
+						Causes:  gomock.Any().String(),
+					}
+					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-		Context("When there is invalid request that is caught by error database in usecase", func() {
-			It("returns bad request", func() {
-				mockException := &exception.Exception{
-					Message: exception.ErrorDatabase,
-					Causes:  gomock.Any().String(),
-				}
-				mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
-
+					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The usecase fails to generate refresh token", func() {
+				It("returns bad request", func() {
+					mockException := &exception.Exception{
+						Message: exception.ErrorRefreshToken,
+						Causes:  gomock.Any().String(),
+					}
+					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-		Context("When there is invalid request that is caught by error generate access token in usecase", func() {
-			It("returns bad request", func() {
-				mockException := &exception.Exception{
-					Message: exception.ErrorAccessToken,
-					Causes:  gomock.Any().String(),
-				}
-				mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
-
+					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
+					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
+				})
 			})
-		})
+			When("The login controller successfully process the request", func() {
+				It("returns AuthEntity", func() {
+					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(mockAuthEntity, nil).Times(1)
 
-		Context("When there is invalid request that is caught by error generate refresh token in usecase", func() {
-			It("returns bad request", func() {
-				mockException := &exception.Exception{
-					Message: exception.ErrorRefreshToken,
-					Causes:  gomock.Any().String(),
-				}
-				mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
+					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-				payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
-				req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					if err != nil {
+						log.Fatal(err)
+					}
 
-				if err != nil {
-					log.Fatal(err)
-				}
+					rec := httptest.NewRecorder()
 
-				rec := httptest.NewRecorder()
+					e.ServeHTTP(rec, req)
 
-				e.ServeHTTP(rec, req)
+					res := rec.Result()
+					defer res.Body.Close()
 
-				res := rec.Result()
-				defer res.Body.Close()
+					result := response.Response{}
+					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
-				Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					data := entity.AuthEntity{}
+					dataJSON, _ := json.Marshal(result.Data)
+					_ = json.Unmarshal(dataJSON, &data)
 
+					Expect(rec).Should(HaveHTTPStatus(http.StatusOK))
+					Expect(result.Status).Should(Equal(response.ResponseStatusSuccess))
+					Expect(result.Message).Should(Equal(response.ResponseMessageSuccess))
+					Expect(data.AccessToken).Should(Equal(mockAuthEntity.AccessToken))
+					Expect(data.RefreshToken).Should(Equal(mockAuthEntity.RefreshToken))
+				})
 			})
 		})
 	})
