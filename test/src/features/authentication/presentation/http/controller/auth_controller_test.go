@@ -305,7 +305,9 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
 					Expect(res).Should(HaveHTTPStatus(http.StatusInternalServerError))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
 					Expect(result.Message).Should(Equal(exception.InternalServerError))
+					Expect(result.Data).Should(BeNil())
 				})
 			})
 			When("The request parameter can't be binded caught by error validation", func() {
@@ -329,7 +331,9 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
 					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
 					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
 				})
 			})
 			When("The usecase fails to get data from database", func() {
@@ -359,7 +363,9 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
 					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
 					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
 				})
 			})
 			When("The usecase fails to generate access token", func() {
@@ -389,7 +395,9 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
 					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
 					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
 				})
 			})
 			When("The usecase fails to generate refresh token", func() {
@@ -419,7 +427,9 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(rec.Body.Bytes(), &result)
 
 					Expect(res).Should(HaveHTTPStatus(http.StatusBadRequest))
+					Expect(result.Status).Should(Equal(response.ResponseStatusError))
 					Expect(result.Message).Should(Equal(exception.BadRequest))
+					Expect(result.Data).Should(BeNil())
 				})
 			})
 			When("The login controller successfully process the request", func() {
@@ -449,6 +459,8 @@ var _ = Describe("AuthController", func() {
 					_ = json.Unmarshal(dataJSON, &data)
 
 					Expect(rec).Should(HaveHTTPStatus(http.StatusOK))
+					Expect(result.Status).Should(Equal(response.ResponseStatusSuccess))
+					Expect(result.Message).Should(Equal(response.ResponseMessageSuccess))
 					Expect(data.AccessToken).Should(Equal(mockAuthEntity.AccessToken))
 					Expect(data.RefreshToken).Should(Equal(mockAuthEntity.RefreshToken))
 				})
