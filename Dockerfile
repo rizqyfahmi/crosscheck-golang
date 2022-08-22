@@ -16,6 +16,7 @@ RUN go mod verify
 
 COPY /config ./config
 COPY /console ./console
+COPY /docs ./docs
 COPY /routes ./routes
 COPY /app ./app
 COPY .env .env
@@ -33,6 +34,7 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /source/main-app .
+COPY --from=builder /source/docs ./docs
 COPY --from=builder /source/.env .
 
 CMD [ "./main-app" ]

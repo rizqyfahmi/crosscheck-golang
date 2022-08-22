@@ -15,6 +15,7 @@ import (
 	"log"
 	"net/http"
 
+	oam "github.com/go-openapi/runtime/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
@@ -35,6 +36,7 @@ func New(app *echo.Echo, db *sqlx.DB, config *config.Config) *Route {
 
 func (r *Route) Run() {
 
+	r.getStaticRoute()
 	r.getGeneralRoute()
 	r.getAuthRoute()
 
@@ -43,12 +45,23 @@ func (r *Route) Run() {
 	}
 }
 
+func (r *Route) getStaticRoute() {
+	router := r.app
+	// router.Static("/", "docs")
+	router.File("/swagger.yml", "docs/swagger.yml")
+}
+
 // Get general route privately
 func (r *Route) getGeneralRoute() {
 	router := r.app
+
 	router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	})
+
+	swaggerOpts := oam.SwaggerUIOpts{SpecURL: "/swagger.yml"}
+	swaggerUI := oam.SwaggerUI(swaggerOpts, nil)
+	router.GET("/docs", echo.WrapHandler(swaggerUI))
 }
 
 // Get auth route privately

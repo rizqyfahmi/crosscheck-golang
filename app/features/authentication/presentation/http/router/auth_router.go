@@ -21,6 +21,19 @@ func New(echo *echo.Echo, controller *authcontroller.AuthController) *AuthRouter
 
 func (s *AuthRouter) Run() {
 	router := s.echo.Group("/auth")
+	// swagger:route POST /auth/registration authentication registration
+	//
+	// Register a new user.
+	//
+	// consumes:
+	// 	- application/x-www-form-urlencoded
+	// produces:
+	// 	- application/json
+	//
+	// responses:
+	// 	200: RegistrationSuccessResponse
+	//  500: Registration500Response
+	//  400: Registration400Response
 	router.POST("/registration", s.controller.Registration)
 	router.POST("/login", s.controller.Login)
 	router.GET("/", func(c echo.Context) error {

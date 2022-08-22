@@ -105,6 +105,19 @@ http-registration:
 	@curl -X POST http://localhost:8081/auth/registration -H "Content-Type: application/json" -d 'name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword'
 	@-echo "Registration successfully tried..."
 
+
+.PHONY: doc-generate-spec doc-run
+# make doc-generate-spec
+doc-generate-spec: 
+	@-echo "Generating swagger spec..."
+	@swagger generate spec -o ./docs/swagger.yml --scan-models
+	@-echo "Swagger spec successfully generated..."
+
+# make doc-run
+doc-run:
+	@-echo "Running swagger spec..."
+	@swagger serve -F=swagger -p 8082 ./docs/swagger.yml
+	@-echo "Swagger spec successfully run..."
 .PHONY: check
 # make check
 check:
