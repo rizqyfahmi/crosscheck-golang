@@ -30,13 +30,19 @@ func (controller *AuthController) Registration(c echo.Context) error {
 	log.Printf("\nRegistration controller: binding request parameters")
 	if err := c.Bind(param); err != nil {
 		log.Printf("\nRegistration controller: error binding! -> %+v", err)
-		return c.JSON(http.StatusInternalServerError, exception.InternalServerError)
+		return c.JSON(http.StatusInternalServerError, response.Response{
+			Status:  response.ResponseStatusError,
+			Message: exception.InternalServerError,
+		})
 	}
 
 	log.Printf("\nRegistration controller: validating request parameters")
 	if err := c.Validate(param); err != nil {
 		log.Printf("\nRegistration controller: error validation! -> %+v", err)
-		return c.JSON(http.StatusBadRequest, exception.BadRequest)
+		return c.JSON(http.StatusBadRequest, response.Response{
+			Status:  response.ResponseStatusError,
+			Message: exception.BadRequest,
+		})
 	}
 
 	log.Printf("\nRegistration controller: executing registration usecase")
@@ -44,11 +50,18 @@ func (controller *AuthController) Registration(c echo.Context) error {
 
 	if err != nil {
 		log.Printf("\nRegistration controller: error usecase! -> %+v", err)
-		return c.JSON(http.StatusBadRequest, exception.BadRequest)
+		return c.JSON(http.StatusBadRequest, response.Response{
+			Status:  response.ResponseStatusError,
+			Message: exception.BadRequest,
+		})
 	}
 
 	log.Println("\nRegistration controller: Completed!")
-	return c.JSON(http.StatusOK, authEntity)
+	return c.JSON(http.StatusOK, response.Response{
+		Status:  response.ResponseStatusSuccess,
+		Message: response.ResponseMessageSuccess,
+		Data:    authEntity,
+	})
 
 }
 
