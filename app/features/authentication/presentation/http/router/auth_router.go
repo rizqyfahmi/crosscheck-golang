@@ -26,7 +26,7 @@ func (s *AuthRouter) Run() {
 	// Register a new user.
 	//
 	// consumes:
-	// 	- application/x-www-form-urlencoded
+	// 	- application/json
 	// produces:
 	// 	- application/json
 	//

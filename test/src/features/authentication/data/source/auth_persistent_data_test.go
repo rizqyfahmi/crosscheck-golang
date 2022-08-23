@@ -80,7 +80,7 @@ var _ = Describe("AuthPersistentData", func() {
 			When("Executing select query where username is equal to the parameter", func() {
 				It("returns an error", func() {
 					defer mockDB.Close()
-					mock.ExpectQuery("SELECT id, name, email, password, created_at, updated_at FROM users WHERE users.id = (.+)").
+					mock.ExpectQuery("SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = (.+)").
 						WithArgs(mockUsername).
 						WillReturnError(errors.New(exception.ErrorDatabase))
 
@@ -97,7 +97,7 @@ var _ = Describe("AuthPersistentData", func() {
 					mockQueryResult := sqlmock.NewRows([]string{"id", "name", "email", "password", "created_at", "updated_at"}).
 						AddRow(mockUserModel.Id, mockUserModel.Name, mockUserModel.Email, mockUserModel.Password, mockUserModel.CreatedAt, mockUserModel.UpdatedAt)
 
-					mock.ExpectQuery("SELECT id, name, email, password, created_at, updated_at FROM users WHERE users.id = (.+)").
+					mock.ExpectQuery("SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = (.+)").
 						WithArgs(mockUsername).
 						WillReturnRows(mockQueryResult)
 

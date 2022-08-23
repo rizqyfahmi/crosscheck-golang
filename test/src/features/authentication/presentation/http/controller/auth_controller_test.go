@@ -66,9 +66,9 @@ var _ = Describe("AuthController", func() {
 
 	Context("Registration", func() {
 		Describe("Name, email, password, and confirmPassword as the request parameters", func() {
-			When("The request parameter can't be binded caught by different content-type", func() {
+			When("The request parameter can't be binded caught by different content-type and payload type", func() {
 				It("returns internal server error", func() {
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword` // application/x-www-form-urlencoded
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
 					req.Header.Set("Content-Type", "application/json")
 
@@ -94,9 +94,9 @@ var _ = Describe("AuthController", func() {
 			})
 			When("The request parameter can't be binded caught by error validation", func() {
 				It("returns bad request", func() {
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -126,9 +126,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword", "confirmPassword": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -158,9 +158,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword", "confirmPassword": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -190,9 +190,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword", "confirmPassword": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -222,9 +222,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(nil, mockException).Times(1)
 
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword", "confirmPassword": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -250,9 +250,9 @@ var _ = Describe("AuthController", func() {
 				It("returns AuthEntity", func() {
 					mockRegistrationUsecase.EXPECT().Call(*mockParam).Return(mockAuthEntity, nil).Times(1)
 
-					payload := `name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword`
+					payload := `{"name": "Rizqy Fahmi", "email": "rizqyfahmi@email.com", "password": "HelloPassword", "confirmPassword": "HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/registration", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -284,9 +284,9 @@ var _ = Describe("AuthController", func() {
 
 	Context("Login", func() {
 		Describe("Username and password as the request parameters", func() {
-			When("The request parameter can't be binded caught by different content-type", func() {
+			When("The request parameter can't be binded caught by different content-type and payload type", func() {
 				It("returns internal server error", func() {
-					payload := `username=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `username=rizqyfahmi@email.com&password=HelloPassword` // application/x-www-form-urlencoded
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
 					req.Header.Set("Content-Type", "application/json")
 
@@ -312,9 +312,9 @@ var _ = Describe("AuthController", func() {
 			})
 			When("The request parameter can't be binded caught by error validation", func() {
 				It("returns bad request", func() {
-					payload := `username=rizqyfahmi@email.com&password=`
+					payload := `{"username":"rizqyfahmi@email.com", "password":""}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -344,9 +344,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockLoginUsecase.EXPECT().Call(*mockLoginParam).Return(nil, mockException).Times(1)
 
-					payload := `username=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `{"username":"rizqyfahmi@email.com", "password":"HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -376,9 +376,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockLoginUsecase.EXPECT().Call(*mockLoginParam).Return(nil, mockException).Times(1)
 
-					payload := `username=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `{"username":"rizqyfahmi@email.com", "password":"HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -408,9 +408,9 @@ var _ = Describe("AuthController", func() {
 					}
 					mockLoginUsecase.EXPECT().Call(*mockLoginParam).Return(nil, mockException).Times(1)
 
-					payload := `username=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `{"username":"rizqyfahmi@email.com", "password":"HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
@@ -436,9 +436,9 @@ var _ = Describe("AuthController", func() {
 				It("returns AuthEntity", func() {
 					mockLoginUsecase.EXPECT().Call(*mockLoginParam).Return(mockAuthEntity, nil).Times(1)
 
-					payload := `username=rizqyfahmi@email.com&password=HelloPassword`
+					payload := `{"username":"rizqyfahmi@email.com", "password":"HelloPassword"}`
 					req, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(payload))
-					req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+					req.Header.Set("Content-Type", "application/json")
 
 					if err != nil {
 						log.Fatal(err)
