@@ -1,19 +1,25 @@
 package jwt_test
 
 import (
+	"log"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	JwtUtil "crosscheck-golang/app/utils/jwt"
+	"crosscheck-golang/config"
 )
 
 var _ = Describe("JWT", func() {
 	Describe("Generate Token", func() {
 		Context("When SecretKey parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(HaveOccurred())
@@ -24,7 +30,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When ExpiresAt parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 0)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 0,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(HaveOccurred())
@@ -35,7 +45,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When UserID parameter on GenerateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.GenerateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -46,7 +60,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When all required parameters is not empty", func() {
 			It("returns success", func() {
-				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.GenerateToken("UserID")
 
 				Expect(err).Should(Succeed())
@@ -58,7 +76,11 @@ var _ = Describe("JWT", func() {
 	Describe("Validate Token", func() {
 		Context("When SecretKey parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.ValidateToken("Token")
 
 				Expect(err).Should(HaveOccurred())
@@ -69,7 +91,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When ExpiresAt parameter on initial is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 0)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 0,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.ValidateToken("Token")
 
 				Expect(err).Should(HaveOccurred())
@@ -80,7 +106,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When token parameter on ValidateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.ValidateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -91,7 +121,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When token parameter on ValidateToken is empty", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.ValidateToken("")
 
 				Expect(err).Should(HaveOccurred())
@@ -102,7 +136,11 @@ var _ = Describe("JWT", func() {
 
 		Context("When value of token parameter is invalid", func() {
 			It("returns failed", func() {
-				jwt := JwtUtil.New("SecretKey", 10*time.Minute)
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 10 * time.Minute,
+				}
+				jwt := JwtUtil.New[JwtUtil.JwtUtil](config)
 				result, err := jwt.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
 
 				Expect(err).Should(HaveOccurred())
@@ -115,7 +153,12 @@ var _ = Describe("JWT", func() {
 			var jwt JwtUtil.JwtUtil
 
 			BeforeEach(func() {
-				jwt = JwtUtil.New("SecretKey", 30*time.Minute)
+				log.Println("Hello")
+				config := config.TokenConfig{
+					Secret:  "SecretKey",
+					Expires: 30 * time.Minute,
+				}
+				jwt = JwtUtil.New[JwtUtil.JwtUtil](config)
 				tempToken, err := jwt.GenerateToken("UserID")
 
 				token = *tempToken
@@ -125,7 +168,6 @@ var _ = Describe("JWT", func() {
 
 			It("returns success", func() {
 				result, err := jwt.ValidateToken(token)
-
 				Expect(err).Should(Succeed())
 				Expect(result).ShouldNot(BeNil())
 			})
