@@ -98,19 +98,25 @@ test-run:
 	@ginkgo test ./...
 	@-echo "All test suites successfully runned..."
 
-.PHONY: http-registration
+.PHONY: http-registration http-login
 # make http-registration
 http-registration:
 	@-echo "Trying registration..."
-	@curl -X POST http://localhost:8081/auth/registration -H "Content-Type: application/json" -d 'name=Rizqy Fahmi&email=rizqyfahmi@email.com&password=HelloPassword&confirmPassword=HelloPassword'
+	@curl -X POST http://localhost:8081/auth/registration -H "Content-Type: application/json" -d '{"name":"Rizqy Fahmi", "email":"rizqyfahmi@email.com", "password":"HelloPassword", "confirmPassword":"HelloPassword"}'
 	@-echo "Registration successfully tried..."
+
+# make http-login
+http-login:
+	@-echo "Trying login..."
+	@curl -X POST http://localhost:8081/auth/login -H 'Content-Type: application/json' -d '{"username":"rizqyfahmi@email.com", "password":"HelloPassword"}'
+	@-echo "Login successfully tried..."
 
 
 .PHONY: doc-generate-spec doc-run
 # make doc-generate-spec
 doc-generate-spec: 
 	@-echo "Generating swagger spec..."
-	@swagger generate spec -o ./docs/swagger.yml --scan-models
+	@swagger generate spec -o ./docs/swagger.json --scan-models
 	@-echo "Swagger spec successfully generated..."
 
 # make doc-run
