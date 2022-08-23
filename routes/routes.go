@@ -18,6 +18,7 @@ import (
 	oam "github.com/go-openapi/runtime/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Route struct {
@@ -47,7 +48,10 @@ func (r *Route) Run() {
 
 func (r *Route) getStaticRoute() {
 	router := r.app
-	// router.Static("/", "docs")
+	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 	router.File("/swagger.yml", "docs/swagger.yml")
 }
 
