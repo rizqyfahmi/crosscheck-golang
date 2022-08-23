@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"crosscheck-golang/config"
 	"fmt"
 	"time"
 
@@ -17,16 +18,20 @@ type JwtUtil interface {
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
+type AccessToken JwtUtil
+type RefreshToken JwtUtil
+
 type JwtUtilImpl struct {
 	secretKey string
 	expiresAt time.Duration
 }
 
-func New(secretKey string, expiresAt time.Duration) JwtUtil {
-	return &JwtUtilImpl{
-		secretKey,
-		expiresAt,
+func New[T any](param config.TokenConfig) T {
+	var util interface{} = &JwtUtilImpl{
+		param.Secret,
+		param.Expires,
 	}
+	return util.(T)
 }
 
 func (j *JwtUtilImpl) GenerateToken(userID string) (*string, error) {

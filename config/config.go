@@ -12,8 +12,8 @@ import (
 type Config struct {
 	Server       ServerConfig
 	DbConfig     DBConfig
-	AccessToken  AccessTokenCookieConfig
-	RefreshToken RefreshTokenCookieConfig
+	AccessToken  TokenConfig
+	RefreshToken TokenConfig
 }
 
 type ServerConfig struct {
@@ -32,16 +32,7 @@ type DBConfig struct {
 	Password string
 }
 
-type AccessTokenCookieConfig struct {
-	Name     string
-	Path     string
-	Secret   string
-	Secure   bool
-	HttpOnly bool
-	Expires  time.Duration
-}
-
-type RefreshTokenCookieConfig struct {
+type TokenConfig struct {
 	Name     string
 	Path     string
 	Secret   string
@@ -123,7 +114,7 @@ func GetDBConfig() *DBConfig {
 	}
 }
 
-func GetTokenCookieConfig() (*AccessTokenCookieConfig, error) {
+func GetTokenCookieConfig() (*TokenConfig, error) {
 	secure, err := strconv.ParseBool(os.Getenv("JWT_ACCESS_TOKEN_SECURE"))
 	if err != nil {
 		return nil, err
@@ -139,7 +130,7 @@ func GetTokenCookieConfig() (*AccessTokenCookieConfig, error) {
 		return nil, err
 	}
 
-	return &AccessTokenCookieConfig{
+	return &TokenConfig{
 		Name:     os.Getenv("JWT_ACCESS_TOKEN_NAME"),
 		Path:     os.Getenv("JWT_ACCESS_TOKEN_PATH"),
 		Secret:   os.Getenv("JWT_ACCESS_TOKEN_SECRET"),
@@ -149,7 +140,7 @@ func GetTokenCookieConfig() (*AccessTokenCookieConfig, error) {
 	}, nil
 }
 
-func GetRefreshTokenCookieConfig() (*RefreshTokenCookieConfig, error) {
+func GetRefreshTokenCookieConfig() (*TokenConfig, error) {
 	secure, err := strconv.ParseBool(os.Getenv("JWT_REFRESH_TOKEN_SECURE"))
 	if err != nil {
 		return nil, err
@@ -165,7 +156,7 @@ func GetRefreshTokenCookieConfig() (*RefreshTokenCookieConfig, error) {
 		return nil, err
 	}
 
-	return &RefreshTokenCookieConfig{
+	return &TokenConfig{
 		Name:     os.Getenv("JWT_REFRESH_TOKEN_NAME"),
 		Path:     os.Getenv("JWT_REFRESH_TOKEN_PATH"),
 		Secret:   os.Getenv("JWT_REFRESH_TOKEN_SECRET"),

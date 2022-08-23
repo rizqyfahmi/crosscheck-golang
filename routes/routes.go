@@ -70,8 +70,8 @@ func (r *Route) getGeneralRoute() {
 
 // Get auth route privately
 func (r *Route) getAuthRoute() {
-	accessToken := jwtUtils.New(r.config.AccessToken.Secret, r.config.AccessToken.Expires)
-	refreshToken := jwtUtils.New(r.config.RefreshToken.Secret, r.config.RefreshToken.Expires)
+	accessToken := jwtUtils.New[jwtUtils.AccessToken](r.config.AccessToken)
+	refreshToken := jwtUtils.New[jwtUtils.RefreshToken](r.config.RefreshToken)
 	hash := hash.New(bcrypt.New())
 	clock := clock.New()
 	authPersistent := authpersistent.New(r.db)
