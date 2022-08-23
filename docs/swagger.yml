@@ -1,0 +1,189 @@
+definitions:
+  AuthEntity:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUxNjIzOTAyMn0.bM1Td-Z3cEH17gygGwbXUefCN7NaKEXazy3khKzwjj0
+        type: string
+        x-go-name: AccessToken
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUxNjIzOTAyMn0.bM1Td-Z3cEH17gygGwbXUefCN7NaKEXazy3khKzwjj0
+        type: string
+        x-go-name: RefreshToken
+    required:
+    - access_token
+    - refresh_token
+    type: object
+    x-go-package: crosscheck-golang/app/features/authentication/domain/entity
+  LoginParameter:
+    properties:
+      password:
+        description: The password of a user
+        example: HelloPassword
+        type: string
+        x-go-name: Password
+      username:
+        description: The username of a user
+        example: johndoe@mail.com
+        type: string
+        x-go-name: Username
+    required:
+    - username
+    - password
+    type: object
+    x-go-name: LoginParam
+    x-go-package: crosscheck-golang/app/features/authentication/data/param
+  RegistrationParameter:
+    properties:
+      confirmPassword:
+        description: the confirmation password of a new user
+        example: HelloPassword
+        type: string
+        x-go-name: ConfirmPassword
+      email:
+        description: The email address of a new user
+        example: johndoe@mail.com
+        type: string
+        x-go-name: Email
+      name:
+        description: The full name of a new user
+        example: John Doe
+        type: string
+        x-go-name: Name
+      password:
+        description: The password of a new user
+        example: HelloPassword
+        type: string
+        x-go-name: Password
+    required:
+    - name
+    - email
+    - password
+    - confirmPassword
+    type: object
+    x-go-name: RegistrationParam
+    x-go-package: crosscheck-golang/app/features/authentication/data/param
+host: localhost:8081
+info:
+  contact:
+    email: rizqyfahmi@gmail.com
+    name: Rizqy Fahmi
+  description: An open-source project that is used for learning purpose.
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  title: Croscheck
+  version: 0.0.1
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      operationId: login
+      parameters:
+      - in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginParameter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/AuthSuccessResponse'
+        "400":
+          $ref: '#/responses/BadRequest'
+        "500":
+          $ref: '#/responses/InternalServerError'
+      summary: Enter the system.
+      tags:
+      - authentication
+  /auth/registration:
+    post:
+      consumes:
+      - application/json
+      operationId: registration
+      parameters:
+      - in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/RegistrationParameter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/AuthSuccessResponse'
+        "400":
+          $ref: '#/responses/BadRequest'
+        "500":
+          $ref: '#/responses/InternalServerError'
+      summary: Register a new user.
+      tags:
+      - authentication
+responses:
+  AuthSuccessResponse:
+    description: The response when a request successfully processed
+    schema:
+      properties:
+        data:
+          $ref: '#/definitions/AuthEntity'
+        message:
+          example: Request successfully processed
+          type: string
+          x-go-name: Message
+        status:
+          example: success
+          type: string
+          x-go-name: Status
+      required:
+      - status
+      - message
+      - data
+      type: object
+  BadRequest:
+    description: The response when a request fails to be processed caught by error
+      validation, encryption, database, access token, and refresh token
+    schema:
+      properties:
+        data:
+          example: null
+          type: object
+          x-go-name: Data
+        message:
+          example: Bad request
+          type: string
+          x-go-name: Message
+        status:
+          example: error
+          type: string
+          x-go-name: Status
+      required:
+      - status
+      - message
+      - data
+      type: object
+  InternalServerError:
+    description: The response when a request fails to be processed caught by error
+      content-type
+    schema:
+      properties:
+        data:
+          example: null
+          type: object
+          x-go-name: Data
+        message:
+          example: Internal server error
+          type: string
+          x-go-name: Message
+        status:
+          example: error
+          type: string
+          x-go-name: Status
+      required:
+      - status
+      - message
+      - data
+      type: object
+schemes:
+- http
+swagger: "2.0"

@@ -1,3 +1,14 @@
+// Croscheck
+//
+// An open-source project that is used for learning purpose.
+//
+//	Schemes: http
+//	Host: localhost:8081
+//	Version: 0.0.1
+//	License: MIT http://opensource.org/licenses/MIT
+//	Contact: Rizqy Fahmi<rizqyfahmi@gmail.com>
+//
+// swagger:meta
 package main
 
 import (

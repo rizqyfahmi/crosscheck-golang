@@ -42,92 +42,94 @@ var _ = Describe("LoginUsecase", func() {
 		}
 	})
 
-	Context("When AuthRepository returns UserEntity", func() {
-		It("makes LoginUsecase returns AuthEntity", func() {
+	Describe("Login parameters", func() {
+		When("AuthRepository returns UserEntity", func() {
+			It("makes LoginUsecase returns AuthEntity", func() {
 
-			anyString := gomock.Any().String()
-			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
-			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
-			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
-			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
+				anyString := gomock.Any().String()
+				mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
+				mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
+				mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
+				mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 
-			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
-			entity, err := usecase.Call(*mockParam)
+				usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+				entity, err := usecase.Call(*mockParam)
 
-			Expect(err).Should(BeNil()) // We don't need Succeed, because we use a custom error struct
-			Expect(entity).ShouldNot(BeNil())
-			Expect(entity.AccessToken).ShouldNot(BeEmpty())
-			Expect(entity.RefreshToken).ShouldNot(BeEmpty())
+				Expect(err).Should(BeNil()) // We don't need Succeed, because we use a custom error struct
+				Expect(entity).ShouldNot(BeNil())
+				Expect(entity.AccessToken).ShouldNot(BeEmpty())
+				Expect(entity.RefreshToken).ShouldNot(BeEmpty())
+			})
 		})
-	})
 
-	Context("When AuthRepository fails to get UserLoginEntity", func() {
-		It("makes LoginUsecase returns ErrorDatabase", func() {
-			mockException := &exception.Exception{
-				Message: exception.ErrorDatabase,
-				Causes:  gomock.Any().String(),
-			}
+		When("AuthRepository fails to get UserLoginEntity", func() {
+			It("makes LoginUsecase returns ErrorDatabase", func() {
+				mockException := &exception.Exception{
+					Message: exception.ErrorDatabase,
+					Causes:  gomock.Any().String(),
+				}
 
-			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(nil, mockException)
+				mockAuthRepository.EXPECT().Login(mockParam.Username).Return(nil, mockException)
 
-			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
-			entity, err := usecase.Call(*mockParam)
+				usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+				entity, err := usecase.Call(*mockParam)
 
-			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
-			Expect(err.Message).Should(Equal(exception.ErrorDatabase))
-			Expect(err.Causes).Should(Equal(gomock.Any().String()))
-			Expect(entity).Should(BeNil())
+				Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
+				Expect(err.Message).Should(Equal(exception.ErrorDatabase))
+				Expect(err.Causes).Should(Equal(gomock.Any().String()))
+				Expect(entity).Should(BeNil())
+			})
 		})
-	})
 
-	Context("When hashed password fails to compare with password parameter", func() {
-		It("makes LoginUsecase returns ErrorEncryption", func() {
-			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
-			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(errors.New(gomock.Any().String()))
+		When("hashed password fails to compare with password parameter", func() {
+			It("makes LoginUsecase returns ErrorEncryption", func() {
+				mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
+				mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(errors.New(gomock.Any().String()))
 
-			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
-			entity, err := usecase.Call(*mockParam)
+				usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+				entity, err := usecase.Call(*mockParam)
 
-			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
-			Expect(err.Message).Should(Equal(exception.ErrorEncryption))
-			Expect(err.Causes).Should(Equal(gomock.Any().String()))
-			Expect(entity).Should(BeNil())
+				Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
+				Expect(err.Message).Should(Equal(exception.ErrorEncryption))
+				Expect(err.Causes).Should(Equal(gomock.Any().String()))
+				Expect(entity).Should(BeNil())
+			})
 		})
-	})
 
-	Context("When generating access token returns error", func() {
-		It("makes LoginUsecase returns ErrorAccessToken", func() {
-			anyString := gomock.Any().String()
-			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
-			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
-			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
-			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
+		When("generating access token returns error", func() {
+			It("makes LoginUsecase returns ErrorAccessToken", func() {
+				anyString := gomock.Any().String()
+				mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
+				mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
+				mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString))
+				mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil)
 
-			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
-			entity, err := usecase.Call(*mockParam)
+				usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+				entity, err := usecase.Call(*mockParam)
 
-			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
-			Expect(err.Message).Should(Equal(exception.ErrorAccessToken))
-			Expect(err.Causes).Should(Equal(gomock.Any().String()))
-			Expect(entity).Should(BeNil())
+				Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
+				Expect(err.Message).Should(Equal(exception.ErrorAccessToken))
+				Expect(err.Causes).Should(Equal(gomock.Any().String()))
+				Expect(entity).Should(BeNil())
+			})
 		})
-	})
 
-	Context("When generating refresh token returns error", func() {
-		It("makes LoginUsecase returns ErrorRefreshToken", func() {
-			anyString := gomock.Any().String()
-			mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
-			mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
-			mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil).AnyTimes()
-			mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString)).AnyTimes()
+		When("generating refresh token returns error", func() {
+			It("makes LoginUsecase returns ErrorRefreshToken", func() {
+				anyString := gomock.Any().String()
+				mockAuthRepository.EXPECT().Login(mockParam.Username).Return(mockEntity, nil)
+				mockHash.EXPECT().ComparePassword(mockEntity.Password, "HelloPassword").Return(nil)
+				mockAccessToken.EXPECT().GenerateToken(mockEntity.Id).Return(&anyString, nil).AnyTimes()
+				mockRefreshToken.EXPECT().GenerateToken(mockEntity.Id).Return(nil, errors.New(anyString)).AnyTimes()
 
-			usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
-			entity, err := usecase.Call(*mockParam)
+				usecase := authloginuc.New(mockAuthRepository, mockAccessToken, mockRefreshToken, mockHash)
+				entity, err := usecase.Call(*mockParam)
 
-			Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
-			Expect(err.Message).Should(Equal(exception.ErrorRefreshToken))
-			Expect(err.Causes).Should(Equal(gomock.Any().String()))
-			Expect(entity).Should(BeNil())
+				Expect(err).ShouldNot(BeNil()) // We don't need Succeed, because we use a custom error struct
+				Expect(err.Message).Should(Equal(exception.ErrorRefreshToken))
+				Expect(err.Causes).Should(Equal(gomock.Any().String()))
+				Expect(entity).Should(BeNil())
+			})
 		})
 	})
 })

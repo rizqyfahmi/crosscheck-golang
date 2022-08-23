@@ -29,7 +29,7 @@ func (s *AuthPersistentImpl) Insert(userModel *model.UserModel) error {
 func (s *AuthPersistentImpl) GetByUsername(username *string) (*model.UserModel, error) {
 	userModel := model.UserModel{}
 
-	row := s.db.QueryRowx("SELECT id, name, email, password, created_at, updated_at FROM users WHERE users.id = $1", &username)
+	row := s.db.QueryRowx("SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = $1", &username)
 	err := row.StructScan(&userModel)
 
 	if err != nil {
