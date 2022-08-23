@@ -14,6 +14,24 @@ definitions:
     - refresh_token
     type: object
     x-go-package: crosscheck-golang/app/features/authentication/domain/entity
+  LoginParameter:
+    properties:
+      password:
+        description: The password of a user
+        example: HelloPassword
+        type: string
+        x-go-name: Password
+      username:
+        description: The username of a user
+        example: johndoe@mail.com
+        type: string
+        x-go-name: Username
+    required:
+    - username
+    - password
+    type: object
+    x-go-name: LoginParam
+    x-go-package: crosscheck-golang/app/features/authentication/data/param
   RegistrationParameter:
     properties:
       confirmPassword:
@@ -56,10 +74,33 @@ info:
   title: Croscheck
   version: 0.0.1
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      operationId: login
+      parameters:
+      - in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginParameter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/AuthSuccessResponse'
+        "400":
+          $ref: '#/responses/BadRequest'
+        "500":
+          $ref: '#/responses/InternalServerError'
+      summary: Enter the system.
+      tags:
+      - authentication
   /auth/registration:
     post:
       consumes:
-      - application/x-www-form-urlencoded
+      - application/json
       operationId: registration
       parameters:
       - in: body
@@ -71,16 +112,35 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/RegistrationSuccessResponse'
+          $ref: '#/responses/AuthSuccessResponse'
         "400":
-          $ref: '#/responses/Registration400Response'
+          $ref: '#/responses/BadRequest'
         "500":
-          $ref: '#/responses/Registration500Response'
+          $ref: '#/responses/InternalServerError'
       summary: Register a new user.
       tags:
       - authentication
 responses:
-  Registration400Response:
+  AuthSuccessResponse:
+    description: The response when a request successfully processed
+    schema:
+      properties:
+        data:
+          $ref: '#/definitions/AuthEntity'
+        message:
+          example: Request successfully processed
+          type: string
+          x-go-name: Message
+        status:
+          example: success
+          type: string
+          x-go-name: Status
+      required:
+      - status
+      - message
+      - data
+      type: object
+  BadRequest:
     description: The response when a request fails to be processed caught by error
       validation, encryption, database, access token, and refresh token
     schema:
@@ -102,7 +162,7 @@ responses:
       - message
       - data
       type: object
-  Registration500Response:
+  InternalServerError:
     description: The response when a request fails to be processed caught by error
       content-type
     schema:
@@ -117,25 +177,6 @@ responses:
           x-go-name: Message
         status:
           example: error
-          type: string
-          x-go-name: Status
-      required:
-      - status
-      - message
-      - data
-      type: object
-  RegistrationSuccessResponse:
-    description: The response when a request successfully processed
-    schema:
-      properties:
-        data:
-          $ref: '#/definitions/AuthEntity'
-        message:
-          example: Request successfully processed
-          type: string
-          x-go-name: Message
-        status:
-          example: success
           type: string
           x-go-name: Status
       required:

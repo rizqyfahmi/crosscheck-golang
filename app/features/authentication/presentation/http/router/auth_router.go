@@ -2,7 +2,6 @@ package authrouter
 
 import (
 	authcontroller "crosscheck-golang/app/features/authentication/presentation/http/controller"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
@@ -31,12 +30,22 @@ func (s *AuthRouter) Run() {
 	// 	- application/json
 	//
 	// responses:
-	// 	200: RegistrationSuccessResponse
-	//  500: Registration500Response
-	//  400: Registration400Response
+	// 	200: AuthSuccessResponse
+	//  500: InternalServerError
+	//  400: BadRequest
 	router.POST("/registration", s.controller.Registration)
+	// swagger:route POST /auth/login authentication login
+	//
+	// Enter the system.
+	//
+	// consumes:
+	// 	- application/json
+	// produces:
+	// 	- application/json
+	//
+	// responses:
+	// 	200: AuthSuccessResponse
+	//  500: InternalServerError
+	//  400: BadRequest
 	router.POST("/login", s.controller.Login)
-	router.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello Auth")
-	})
 }

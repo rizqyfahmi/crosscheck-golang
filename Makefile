@@ -116,7 +116,7 @@ http-login:
 # make doc-generate-spec
 doc-generate-spec: 
 	@-echo "Generating swagger spec..."
-	@swagger generate spec -o ./docs/swagger.json --scan-models
+	@swagger generate spec -o ./docs/swagger.yml --scan-models
 	@-echo "Swagger spec successfully generated..."
 
 # make doc-run

@@ -19,10 +19,3 @@ type RegistrationParam struct {
 	// required: true
 	ConfirmPassword string `form:"confirmPassword" json:"confirmPassword" validate:"required,eqfield=Password"`
 }
-
-// swagger:parameters registration
-type _ struct {
-	// in: body
-	// required: true
-	Body RegistrationParam
-}
